@@ -1,0 +1,7 @@
+<div class="btn-group" data-toggle="buttons">
+    {% for widget in field %}
+        <label class="btn btn-secondary">
+            {{ widget.tag }} {{ widget.choice_label }}
+        </label>
+    {% endfor %}
+</div>

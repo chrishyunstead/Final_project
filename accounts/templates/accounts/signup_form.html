@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-container h2 {
+            margin-bottom: 20px;
+        }
+        .form-container label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-container select,
+        .form-container input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .form-container .sub-text {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 10px;
+        }
+        .form-container hr {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>주로 활동하시는 지역을 알려주세요</h2>
+        <div>
+            <label for="city">도시</label>
+            <select id="city" name="city">
+                <option value="서울">서울</option>
+                <!-- Add more options as needed -->
+            </select>
+        </div>
+        <div>
+            <label for="district">지역구</label>
+            <select id="district" name="district">
+                <option value="서초구">서초구</option>
+                <!-- Add more options as needed -->
+            </select>
+        </div>
+        <hr>
+        <h2>FA에서 활동하시면서 사용할 닉네임을 정해주세요</h2>
+        <div>
+            <label for="nickname">닉네임</label>
+            <div class="sub-text">부적절한 닉네임이라 판단될 경우, 닉네임이 강제 변경될 수 있습니다</div>
+            <input type="text" id="nickname" name="nickname" maxlength="10" placeholder="최대 10자">
+        </div>
+    </div>
+</body>
+</html>

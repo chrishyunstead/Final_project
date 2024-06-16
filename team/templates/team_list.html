@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>팀 목록</h2>
+    <div class="row">
+        {% for team in teams %}
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ team.team_name }}</h5>
+                        {% if team.team_image_url %}
+                            <img src="{{ team.team_image_url.url }}" alt="팀 이미지" class="img-thumbnail" style="max-width: 150px;">
+                        {% else %}
+                            <img src="{% static 'images/normal_image.png' %}" alt="기본 팀 이미지" class="img-thumbnail" style="max-width: 150px;">
+                        {% endif %}
+                        <p class="card-text">성별: {{ team.gender }}</p>
+                        <p class="card-text">연령대: {{ team.team_ages }}</p>
+                        <p class="card-text">인원: {{ team.members.count }}명</p>
+                        <p class="card-text">활동 구장: {{ team.court_name }}</p>
+                        <form action="{% url 'team:join_team' team.team_no %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary">팀 가입하기</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

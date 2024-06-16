@@ -1,0 +1,46 @@
+django==4.2.13
+django-extensions==3.2.3
+django-environ==0.11.2
+django-template-partials==24.2
+django-htmx==1.17.3
+django-crispy-forms==2.1
+crispy-bootstrap5==2024.2
+django_components==0.75
+djangorestframework==3.15.1
+
+
+
+# 가짜 데이터 지원
+faker==25.2.0
+# 진행률 알려줌
+tqdm==4.66.4
+
+pandas==2.2.2
+openpyxl==3.1.2
+wordcloud==1.9.3
+colorama==0.4.6
+
+pytest==8.2.1
+pytest-django==4.8.0
+pytest-testdox==3.1.0
+factory-boy==3.3.0
+
+django-vanilla-views==3.0.0
+django-crispy-forms==2.1
+crispy-bootstrap5==2023.10
+django-widget-tweaks==1.5.0
+django-formtools==2.5.1
+django-template-partials==23.4
+
+requests==2.31.0
+pillow==10.1.0
+pandas==2.1.3
+
+mysql
+pymysql==1.1.1
+# cryptography==41.0.7
+
+django-lifecycle==1.1.2
+
+# postgresql
+psycopg2-binary==2.9.9

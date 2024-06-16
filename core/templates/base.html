@@ -1,0 +1,203 @@
+{% load component_tags static %}
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Football Agora</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap/5.3.3/css/bootstrap.min.css' %}"/>
+    <style>
+        .nav-pills {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+        .nav-pills .nav-item {
+            flex: 1;
+            text-align: center;
+        }
+        .nav-pills .nav-link {
+            color: black;
+            font-size: 1.5rem; /* 글자 크기 조정 */
+            font-family: inherit; /* 부모 요소의 글씨체 상속 */
+        }
+        .nav-pills .nav-link:hover {
+            color: black;
+        }
+
+        .navbar-item {
+            position: relative;
+            padding: 10px;
+            display: flex;
+            align-items: center; /* 높이 맞추기 */
+        }
+
+        .navbar-item .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 40px;
+            left: 0;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+
+        .navbar-item:hover .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 10px;
+            color: black;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: #f0f0f0;
+        }
+
+        .dropdown-toggle::after {
+            display: none;
+        }
+
+        .profile-container {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .profile-container span {
+            margin-right: 10px; /* 사용자 이름과 이미지 사이에 여백 추가 */
+        }
+
+        .profile-container img {
+            margin-left: 5px;
+            cursor: pointer;
+        }
+
+        .profile-buttons {
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-buttons a {
+            margin-left: 10px; /* 버튼들 사이에 여백 추가 */
+        }
+
+        .list-group-item {
+            border: 1px solid #ddd;
+            border-radius: 0.25rem;
+            margin-bottom: 10px;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .list-group-item .fa-2x {
+            color: #007bff;
+        }
+
+        .card-header {
+            background-color: #f8f9fa;
+        }
+
+        .card-header .btn-close {
+            font-size: 1.25rem;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+
+        .card-footer .btn-warning {
+            background-color: #ffc107;
+            border-color: #ffc107;
+        }
+
+        .card-footer .btn-warning:hover {
+            background-color: #e0a800;
+            border-color: #d39e00;
+        }
+
+
+
+    </style>
+    {% component_css_dependencies %}
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+
+<header class="p-3 text-bg-dark">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
+            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                FootballAgora
+            </a>
+
+            <div class="text-end">
+                {% if not user.is_authenticated %}
+                    {% url 'accounts:login' as login_url %}
+                    <a href="{{ login_url }}{% if login_url != request.path %}?next={{ request.path }}{% endif %}" class="btn btn-outline-light me-2">로그인</a>
+                    <a href="{% url 'accounts:signup' %}?next={{ request.path }}" class="btn btn-warning">회원가입</a>
+                {% else %}
+                    <div class="profile-container">
+                        <span>{{ user.username }}님</span>
+                        <div class="dropdown">
+                            <img src="{% static 'images/soccer_ball.png' %}" alt="Profile" width="30" height="30" class="dropdown-toggle" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <ul class="dropdown-menu" aria-labelledby="profileDropdown">
+                                <li><a href="{% url 'accounts:mypage' %}" class="dropdown-item">My Page</a></li>
+                                <li><a href="{% url 'team:myteam' %}" class="dropdown-item">My Team</a></li>
+                            </ul>
+                        </div>
+                        <div class="profile-buttons">
+                            <a hx-post="{% url 'accounts:logout' %}?next={{ request.path }}" hx-target="body" hx-push-url="true" class="btn btn-warning">로그아웃</a>
+                            <a href="{% url 'accounts:password_change' %}" class="btn btn-warning">비밀번호 변경</a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</header>
+<main class="py-5">
+    <div class="container">
+        <header class="d-flex justify-content-center py-3">
+            <ul class="nav nav-pills">
+                <li class="nav-item navbar-item"><a href="#" class="nav-link" aria-current="page">풋살장 예약</a></li>
+                <li class="nav-item navbar-item">
+                    <a href="#" class="nav-link">FA TEAM</a>
+                    <div class="dropdown-menu">
+                        <a href="#">Team Story</a>
+                        <a href="#">Team Match</a>
+                        <a href="{% url 'team:myteam' %}">My Team</a>
+                    </div>
+                </li>
+                <li class="nav-item navbar-item"><a href="#" class="nav-link">Chatbot</a></li>
+            </ul>
+        </header>
+        {% block content %}{% endblock %}
+    </div>
+</main>
+<footer class="text-body-secondary py-5">
+    <div class="container">
+    </div>
+</footer>
+{% if debug %}
+    <script src="{% static 'htmx/1.9.11/htmx.js' %}"></script>
+{% else %}
+    <script src="{% static 'htmx/1.9.11/htmx.min.js' %}"></script>
+{% endif %}
+<script src="{% static 'bootstrap/5.3.3/js/bootstrap.bundle.min.js' %}"></script>
+
+{% component_js_dependencies %}
+<script src="{% static 'htmx/ext/ hx-get-with-timestamp.js' %}"></script>
+<script src="{% static 'toast-messages.js' %}"></script>
+
+{% include "_messages_as_event.html" %}
+
+</body>
+</html>

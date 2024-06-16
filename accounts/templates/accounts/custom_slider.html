@@ -1,0 +1,28 @@
+<div class="slider-container">
+    <input type="range" min="1" max="5" value="{{ field.value }}" class="slider" id="{{ field.id_for_label }}" name="{{ field.name }}" oninput="updateLevelLabel(this.value)">
+    <div class="labels">
+        <span id="level-text">풋린이</span>
+    </div>
+</div>
+<script>
+    function updateLevelLabel(value) {
+        const levelText = document.getElementById('level-text');
+        switch(value) {
+            case '1':
+                levelText.textContent = '풋린이';
+                break;
+            case '2':
+                levelText.textContent = '풋내기';
+                break;
+            case '3':
+                levelText.textContent = '풋아마';
+                break;
+            case '4':
+                levelText.textContent = '풋현역';
+                break;
+            case '5':
+                levelText.textContent = '풋롱도르';
+                break;
+        }
+    }
+</script>

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>팀 생성하기</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label for="id_team_name" class="form-label">팀의 이름을 정해주세요</label>
+            <p class="form-text">팀을 대표하는 멋진 이름을 지어주세요!</p>
+            {{ form.team_name }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">팀 대표 이미지를 골라주세요</label>
+            {% if form.team_image_url.value %}
+                <img id="team_image_preview" src="{{ form.team_image_url.value.url }}" alt="Team Image Preview" class="img-thumbnail" style="max-width: 150px;">
+            {% else %}
+                <img id="team_image_preview" src="{% static 'images/normal_image.png' %}" alt="Default Team Image" class="img-thumbnail" style="max-width: 150px;">
+            {% endif %}
+            {{ form.team_image_url }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">팀의 주 활동 시간을 입력해주세요</label>
+            <p class="form-text">활동 요일 (중복 선택 가능)</p>
+            {{ form.team_day }}
+        </div>
+
+        <div class="mb-3">
+            <p class="form-text">주 활동시간대 (택1)</p>
+            {{ form.team_timeslot }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">주로 활동하는 지역과 구장을 선택해주세요</label>
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="id_sido_name">도시</label>
+                    {{ form.sido_name }}
+                </div>
+                <div class="col-md-4">
+                    <label for="id_sigg_name">지역구</label>
+                    {{ form.sigg_name }}
+                </div>
+                <div class="col-md-4">
+                    <label for="id_ground">주 활동 구장</label>
+                    {{ form.court_name }}
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">팀의 나이대와 성별을 알려주세요</label>
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="form-text">주요 나이대 (택1)</p>
+                    {{ form.team_ages }}
+                </div>
+                <div class="col-md-6">
+                    <p class="form-text">성별 (택1)</p>
+                    {{ form.gender }}
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">팀 생성하기</button>
+    </form>
+</div>
+
+<script>
+document.getElementById('id_team_image_url').onchange = function (event) {
+    var reader = new FileReader();
+    reader.onload = function () {
+        var output = document.getElementById('team_image_preview');
+        output.src = reader.result;
+    };
+    reader.readAsDataURL(event.target.files[0]);
+};
+</script>
+{% endblock %}

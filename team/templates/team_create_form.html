@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="modal-title">My Team 메뉴는 팀에 소속되어 있는 회원만 이용할 수 있어요</h5>
+            <button type="button" class="btn-close" aria-label="Close" onclick="window.location.href='/'"></button>
+        </div>
+        <div class="card-body">
+            <div class="list-group">
+                <a href="{% url 'team:create_team' %}" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-users-cog fa-2x me-3"></i>
+                            <h5 class="mb-1">팀 생성하기</h5>
+                        </div>
+                    </div>
+                    <p class="mb-1">회원님만의 팀을 생성하고 팀원을 모집하세요!</p>
+                </a>
+                <a href="{% url 'team:team_list' %}" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-user-plus fa-2x me-3"></i>
+                            <h5 class="mb-1">팀 가입하기</h5>
+                        </div>
+                    </div>
+                    <p class="mb-1">회원님의 맘에 쏙 드는 팀을 찾아 보세요!</p>
+                </a>
+            </div>
+        </div>
+        <div class="card-footer text-end">
+            <button type="button" class="btn btn-warning" onclick="window.location.href='/'">취소</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

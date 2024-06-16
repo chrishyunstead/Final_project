@@ -1,0 +1,131 @@
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <link rel="stylesheet" href="{% static 'bootstrap/5.3.3/css/bootstrap.min.css' %}">
+    <style>
+        .card {
+            margin-top: 50px;
+        }
+        .card-header {
+            background-color: #007bff;
+            color: white;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8 col-sm-10">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">회원가입</h3>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="user_id">User ID</label>
+                                <input type="text" class="form-control" id="user_id" name="user_id" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="birth_date">Birth Date</label>
+                                <input type="date" class="form-control" id="birth_date" name="birth_date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="gender">Gender</label>
+                                <select class="form-control" id="gender" name="gender" required>
+                                    <option value="M">Male</option>
+                                    <option value="F">Female</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="cellphone">Cellphone</label>
+                                <input type="text" class="form-control" id="cellphone" name="cellphone" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sido_name">City</label>
+                                <select class="form-control" id="sido_name" name="sido_name" required>
+                                    <option value="">Select City</option>
+                                    {% for city in sido_names %}
+                                        <option value="{{ city }}">{{ city }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="sigg_name">District</label>
+                                <select class="form-control" id="sigg_name" name="sigg_name" required>
+                                    <option value="">Select District</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="position_1">Position</label>
+                                <select class="form-control" id="position_1" name="position_1" required>
+                                    <option value="공격">공격</option>
+                                    <option value="미드">미드</option>
+                                    <option value="수비">수비</option>
+                                    <option value="골키퍼">골키퍼</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="ability_1">Ability</label>
+                                <select class="form-control" id="ability_1" name="ability_1" required>
+                                    <option value="슛">슛</option>
+                                    <option value="패스">패스</option>
+                                    <option value="드리블">드리블</option>
+                                    <option value="체력">체력</option>
+                                    <option value="스피드">스피드</option>
+                                    <option value="피지컬">피지컬</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="level">Level</label>
+                                <input type="number" class="form-control" id="level" name="level" min="1" max="5" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">회원가입</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const citySelect = document.querySelector('#sido_name');
+        const districtSelect = document.querySelector('#sigg_name');
+
+        citySelect.addEventListener('change', function () {
+            const city = this.value;
+
+            fetch(`/accounts/get-districts/?city=${city}`)
+                .then(response => response.json())
+                .then(data => {
+                    districtSelect.innerHTML = '<option value="">Select District</option>';
+                    for (const district of data.districts) {
+                        const option = document.createElement('option');
+                        option.value = district.sigg_name;
+                        option.text = district.sigg_name;
+                        districtSelect.appendChild(option);
+                    }
+                });
+        });
+    });
+    </script>
+</body>
+</html>

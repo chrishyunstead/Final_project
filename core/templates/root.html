@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load component_tags %}
+{% block content %}
+<<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .container {
+            text-align: center;
+        }
+        .banner-text {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .banner {
+            position: relative;
+            width: 100%;
+            height: auto;
+        }
+        .banner img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="banner-text">
+            배너 텍스트
+        </div>
+        <div class="banner">
+            <img src="#" alt="Banner Image">
+        </div>
+    </div>
+</body>
+{% endblock %}

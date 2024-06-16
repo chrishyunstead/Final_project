@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load component_tags static %}
+{% load static custom_filters %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">프로필 정보</h5>
+                    <div>
+                        {% if user.image_url %}
+                            <img src="{{ user.image_url.url }}" alt="Profile Image" class="img-thumbnail" style="max-width: 300px;">
+                        {% else %}
+                            <img src="{% static 'images/normal_image.png' %}" alt="Default Profile Image" class="img-thumbnail" style="max-width: 300px;">
+                        {% endif %}
+                    </div>
+                    <p class="card-text"><strong>이름:</strong> {{ user.username }}</p>
+                    <p class="card-text"><strong>닉네임:</strong> {{ user.nickname }}</p>
+                    <p class="card-text"><strong>주 활동지역:</strong> {{ user.sido_name }} {{ user.sigg_name }}</p>
+                    <p class="card-text"><strong>자기소개:</strong> {{ user.introduction }}</p>
+                    <a href="{% url 'accounts:edit_mypage' %}" class="btn btn-primary">프로필 수정</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">추가 정보</h5>
+                    <p class="card-text"><strong>주 포지션:</strong> {{ user.position_1 }}</p>
+                    <p class="card-text"><strong>자신있는 능력:</strong> {{ user.ability_1 }}</p>
+                    <p class="card-text"><strong>축구 수준:</strong> {{ user.level|level_to_text }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

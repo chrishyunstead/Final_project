@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+{% load age_filter %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>팀 프로필 <span style="color: orange;">{{ team.team_name }}</span></h2>
+    <div class="row">
+        <div class="col-md-3">
+            {% if team.team_image_url %}
+                <img src="{{ team.team_image_url.url }}" alt="팀 이미지" class="img-thumbnail" style="max-width: 150px;">
+            {% else %}
+                <img src="{% static 'images/normal_image.png' %}" alt="기본 팀 이미지" class="img-thumbnail" style="max-width: 150px;">
+            {% endif %}
+        </div>
+        <div class="col-md-9">
+            <p>인원: {{ team.members.count }}명</p>
+            <p>성별: {{ team.gender }}</p>
+            <p>평균 연령대: {{ team.team_ages }}</p>
+            <p>주 활동 구장: {{ team.court_name }}</p>
+        </div>
+    </div>
+    <h3 class="mt-4">멤버 구성</h3>
+    <div class="row">
+        {% for member in team.members.all %}
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            {% if member.profile.image_url %}
+                                <img src="{{ member.image_url.url }}" alt="프로필 이미지" class="img-thumbnail" style="max-width: 50px;">
+                            {% else %}
+                                <img src="{% static 'images/normal_image.png' %}" alt="기본 프로필 이미지" class="img-thumbnail" style="max-width: 50px;">
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <p class="mb-1"><strong>이름:</strong> {{ member.username }}</p>
+                            <p class="mb-1"><strong>성별:</strong> {{ member.gender }}</p>
+                            <p class="mb-1"><strong>연령:</strong> {{ member.birth_date|age }}</p>
+                            <p class="mb-1"><strong>포지션:</strong> {{ member.position_1 }}</p>
+                            {% if team.created_by == member %}
+                                <p class="mb-1"><strong>팀장</strong></p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

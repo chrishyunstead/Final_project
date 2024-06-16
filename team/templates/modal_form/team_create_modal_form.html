@@ -1,0 +1,36 @@
+{% load component_tags %}
+
+<div class="modal fade modal-form-component" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    {% slot "modal-title" %}My Team 메뉴는 팀에 소속되어 있는 회원만 이용할 수 있어요{% endslot %}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% slot "modal-body" %}
+                    <div class="list-group">
+                        <a href="{% url 'team:create_team' %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">팀 생성하기</h5>
+                            </div>
+                            <p class="mb-1">회원님만의 팀을 생성하고 팀원을 모집하세요!</p>
+                        </a>
+                        <a href="{% url 'team:join_team' %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">팀 가입하기</h5>
+                            </div>
+                            <p class="mb-1">회원님의 맘에 쏙 드는 팀을 찾아 보세요!</p>
+                        </a>
+                    </div>
+                {% endslot %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">취소</button>
+            </div>
+        </div>
+    </div>
+</div>

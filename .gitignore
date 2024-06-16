@@ -1,0 +1,42 @@
+.idea
+.env*
+venv
+db.sqlite3
+__pycache__
+staticfiles
+mediafiles
+.DS_Store
+.python-version
+draft_models.py
+.venv
+my_settings.py
+
+# Django #
+*.log
+*.pot
+*.pyc
+__pycache__/
+media
+
+
+# If your build process includes running tests, coverage reports will go here
+htmlcov/
+
+# Django Migrations #
+*/migrations/*.py
+*/migrations/*.pyc
+
+
+
+# Ignore Python egg files
+*.egg
+*.egg-info
+dist
+build
+eggs
+
+# Ignore virtual environments
+venv/
+ENV/
+env/
+.venv/
