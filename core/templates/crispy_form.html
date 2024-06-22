@@ -11,12 +11,17 @@
 {% endblock %}
 
 <script>
-document.getElementById('id_team_image_url').onchange = function (event) {
-    var reader = new FileReader();
-    reader.onload = function () {
-        var output = document.getElementById('team_image_preview');
-        output.src = reader.result;
-    };
-    reader.readAsDataURL(event.target.files[0]);
-};
+document.addEventListener('DOMContentLoaded', function() {
+    var teamImageUrl = document.getElementById('id_team_image_url');
+    if (teamImageUrl) {
+        teamImageUrl.onchange = function (event) {
+            var reader = new FileReader();
+            reader.onload = function () {
+                var output = document.getElementById('team_image_preview');
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        };
+    }
+});
 </script>

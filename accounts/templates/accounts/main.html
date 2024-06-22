@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+
+{% block banner %}
+<div class="banner">
+    <img src="{% static 'images/banner2.png' %}" alt="Futsal Banner">
+{#    <div class="slogan"></div>#}
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Google Fonts 추가 -->
+<link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+
+
+<style>
+    .cute-font {
+            font-family: 'Comic Neue', 'Noto Sans KR', sans-serif !important;
+        }
+    .card-title {
+        font-weight: bold;
+        font-size: 1.2em;
+    }
+    .card-body p {
+        font-size: 0.95em;
+    }
+    .highlight-text {
+        font-weight: bold;
+        font-size: 1.3em;
+        color: #333;
+    }
+    .card-text {
+        font-size: 1.1em;
+    }
+    .mt-3 {
+        margin-top: 1rem;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="cute-font mb-0"><a href="{% url 'team:team_story' %}" class="text-decoration-none text-dark">TEAM STORY</a></h2>
+        <a href="{% url 'team:team_story' %}" class="btn btn-outline-primary btn-sm ml-2"><i class="fas fa-plus"></i></a>
+    </div>
+    <table class="table cute-font">
+        <thead>
+            <tr>
+                <th>순위</th>
+                <th>팀 이름</th>
+                <th>경기</th>
+                <th>승</th>
+                <th>무</th>
+                <th>패</th>
+                <th>골득실</th>
+                <th>승점</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ranking in team_rankings %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ ranking.team.team_name }}</td>
+                <td>{{ ranking.match_count }}</td>
+                <td>{{ ranking.win_count }}</td>
+                <td>{{ ranking.draw_count }}</td>
+                <td>{{ ranking.lose_count }}</td>
+                <td>{{ ranking.goal_difference }}</td>
+                <td>{{ ranking.points }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h2 class="cute-font">Match schedule and results</h2>
+    <div class="row cute-font">
+        {% for match in matches %}
+            <div class="col-md-6">
+                <div class="card mb-3" style="font-family: 'Comic Neue', sans-serif !important;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ match.date }} {{ match.time }}</h5>
+                        <p class="card-text">{{ match.team.team_name }} vs. {{ match.team_vs.team_name }}</p>
+                        <p class="card-text">장소: {{ match.court_name }}</p>
+                        <p class="card-text">매치 성별: {{ match.gender }}</p>
+                        <p class="card-text">인원: {{ match.members_count }} vs {{ match.members_count }}</p>
+                        <p class="card-text">매치 수준: {{ match.level }}</p>
+                        <p class="card-text">상태: {{ match.status }}</p>
+
+                        {% for result in match_results %}
+                            {% if result.date == match.date and result.team_id == match.team_id or result.team_id == match.team_vs_id %}
+{#                                <h5 class="highlight-text mt-3">경기 결과</h5>#}
+{#                                <p class="card-text">승리팀: {{ result.team.team_name }}</p>#}
+{#                                <p class="card-text">득점: {{ result.goals_for }}</p>#}
+{#                                <p class="card-text">실점: {{ result.goals_against }}</p>#}
+
+                                <h5 class="highlight-text mt-3">경기 결과</h5>
+                                <p class="card-text">{{ result.team.team_name }}:
+                                    {% if result.result == 'W' %} 승리
+                                    {% elif result.result == 'D' %} 무승부
+                                    {% else %} 패배
+                                    {% endif %}
+                                </p>
+                                <p class="card-text">{{ result.goals_for }} : {{ result.goals_against }}</p>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <h2 class="cute-font mt-5">해외축구 기사</h2>
+    <div class="list-group cute-font">
+        {% for article in articles %}
+        <a href="{{ article.link }}" class="list-group-item list-group-item-action" target="_blank">
+            <h5 class="mb-1">{{ article.title }}</h5>
+            <small>{{ article.published }}</small>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

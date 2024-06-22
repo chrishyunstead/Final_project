@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>경기 일정</h2>
+    <div class="row">
+        {% for match in matches %}
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">경기 생성한 팀 이름: {{ match.team.team_name }}</h5>
+                    <p class="card-text">일자: {{ match.date }} {{ match.time }}</p>
+                    <p class="card-text">장소: {{ match.court_name }}</p>
+                    <p class="card-text">성별: {{ match.gender }}</p>
+                    <p class="card-text">인원: {{ match.members_count }}명</p>
+                    <p class="card-text">수준: {{ match.level }}</p>
+                    <p class="card-text">모집 현황: {{ match.status }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

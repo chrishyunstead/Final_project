@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">
+            <h2>경기 리포트 작성</h2>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="id_date" class="form-label">경기 날짜:</label>
+                    {{ form.date }}
+                </div>
+                <div class="mb-3">
+                    <label for="id_opponent" class="form-label">상대 팀:</label>
+                    {{ form.opponent }}
+                </div>
+                <div class="mb-3">
+                    <label for="id_result" class="form-label">결과 입력:</label>
+                    {{ form.result }}
+                </div>
+                <div class="mb-3">
+                    <label for="id_goals_for" class="form-label">득점:</label>
+                    {{ form.goals_for }}
+                </div>
+                <div class="mb-3">
+                    <label for="id_goals_against" class="form-label">실점:</label>
+                    {{ form.goals_against }}
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_video_file" class="form-label">비디오 파일:</label>
+                    {{ form.video_file }}
+                </div>
+                <button type="submit" class="btn btn-primary">저장</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

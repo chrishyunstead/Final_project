@@ -30,6 +30,11 @@
                     <p class="card-text"><strong>주 포지션:</strong> {{ user.position_1 }}</p>
                     <p class="card-text"><strong>자신있는 능력:</strong> {{ user.ability_1 }}</p>
                     <p class="card-text"><strong>축구 수준:</strong> {{ user.level|level_to_text }}</p>
+                    {% if team %}
+                        <div class="mt-3">
+                            <a href="{% url 'team:myteam' %}" class="btn btn-secondary">My Team</a>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

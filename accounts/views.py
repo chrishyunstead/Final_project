@@ -1,5 +1,6 @@
 from typing import Optional
 
+import feedparser
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -9,6 +10,7 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.views import LoginView as DjangoLoginView, RedirectURLMixin
+from django.template import loader
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
@@ -17,7 +19,12 @@ from django.utils.http import urlsafe_base64_encode
 from django.views import View
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic import CreateView, UpdateView, DetailView
+from django.contrib.auth.views import PasswordResetView as DjangoPasswordResetView
+from django.contrib.auth.views import (
+    PasswordResetConfirmView as DjangoPasswordResetConfirmView,
+)
 
+import team
 from accounts.forms import (
     LoginForm,
     SignupForm,
@@ -37,56 +44,15 @@ from django.contrib.auth import (
 from accounts.models import User, Profile, SiggAreas
 from accounts.utils import send_welcome_email
 from django.contrib.auth.views import PasswordChangeView as DjangoPasswordChangeView
+from django.contrib.auth.tokens import default_token_generator as token_generator
 
 from mysite import settings
+from django.contrib.auth.views import (
+    PasswordResetDoneView as DjangoPasswordResetDoneView,
+    PasswordResetCompleteView as DjangoPasswordResetCompleteView,
+)
 
-#
-# class SignupView(RedirectURLMixin, CreateView):
-#     model = Authentication
-#     form_class = SignupForm
-#     template_name = "accounts/signup.html"
-#     extra_context = {
-#         "form_title": "회원가입",
-#     }
-#     success_url = reverse_lazy("accounts:profile")
-#
-#     def dispatch(self, request, *args, **kwargs):
-#         if self.request.user.is_authenticated:
-#             redirect_to = self.success_url
-#             if redirect_to != request.path:
-#                 messages.warning(request, "로그인 유저는 회원가입할 수 없습니다.")
-#                 return HttpResponseRedirect(redirect_to)
-#         return super().dispatch(request, *args, **kwargs)
-#
-#     def form_valid(self, form):
-#         user = form.cleaned_data.get("user_no")
-#         auth_user = Authentication.objects.create(
-#             user_no=user,
-#             user=form.cleaned_data.get("user"),
-#             username=form.cleaned_data.get("username"),
-#             cell_phone=form.cleaned_data.get("cell_phone"),
-#             email=form.cleaned_data.get("email"),
-#             birthday=form.cleaned_data.get("birthday"),
-#             gender=form.cleaned_data.get("gender"),
-#         )
-#         auth_user.set_password(form.cleaned_data.get("password1"))
-#         auth_user.save()
-#
-#         profile = Profile.objects.create(
-#             user_no=user,
-#             position_1=form.cleaned_data.get("position_1"),
-#             ability_1=form.cleaned_data.get("ability_1"),
-#             level=form.cleaned_data.get("level"),
-#             sigg_no=form.cleaned_data.get("sigg_name"),
-#         )
-#         profile.save()
-#
-#         messages.success(self.request, "회원가입을 환영합니다. ;-)")
-#         auth_login(self.request, auth_user)
-#         return super().form_valid(form)
-#
-#
-# signup = SignupView.as_view()
+from team.models import Team, Match, MatchResult
 
 
 # 회원가입, 크리스피html이용
@@ -121,49 +87,6 @@ class SignupView(RedirectURLMixin, CreateView):
 
 signup = SignupView.as_view()
 
-#
-# class SignupView(View):
-#     def get(self, request):
-#         sido_names = SiggAreas.objects.values_list("sido_name", flat=True).distinct()
-#         return render(request, "accounts/signup.html", {"sido_names": sido_names})
-#
-#     def post(self, request):
-#         form = SignupForm(request.POST)
-#         if form.is_valid():
-#             user = form.save()
-#             login(request, user)
-#             return redirect("accounts:profile")
-#         return render(request, "accounts/signup.html", {"form": form})
-#         user_id = request.POST["user_id"]
-#         username = request.POST["username"]
-#         email = request.POST["email"]
-#         birth_date = request.POST["birth_date"]
-#         gender = request.POST["gender"]
-#         cellphone = request.POST["cellphone"]
-#         sido_name = request.POST["sido_name"]
-#         sigg_name = request.POST["sigg_name"]
-#         position_1 = request.POST["position_1"]
-#         ability_1 = request.POST["ability_1"]
-#         level = request.POST["level"]
-#         password = make_password(request.POST["password"])
-#
-#         user = User.objects.create(
-#             user_id=user_id,
-#             username=username,
-#             email=email,
-#             birth_date=birth_date,
-#             gender=gender,
-#             cellphone=cellphone,
-#             sido_name_id=sido_name,
-#             sigg_name_id=sigg_name,
-#             position_1=position_1,
-#             ability_1=ability_1,
-#             level=level,
-#             password=password,
-#         )
-#         auth_login(request, user)
-#         return redirect("accounts:profile")
-
 
 class LoginView(DjangoLoginView):
 
@@ -172,6 +95,7 @@ class LoginView(DjangoLoginView):
 
     form_class = LoginForm
     template_name = "crispy_form.html"
+
     extra_context = {
         "form_title": "로그인",
     }
@@ -193,46 +117,76 @@ class LogoutView(DjangoLogoutView):
 logout = LogoutView.as_view()
 
 
+# 메인 페이지에 축구 기사 가져오기 함수
+def fetch_football_news():
+    feed_url = "https://feeds.bbci.co.uk/sport/rss.xml?edition=uk"  # BBC Sport 예시
+    news_feed = feedparser.parse(feed_url)
+    articles = []
+    for entry in news_feed.entries[:5]:  # 최근 5개의 기사를 가져옵니다.
+        articles.append(
+            {
+                "title": entry.title,
+                "link": entry.link,
+                "published": entry.published,
+            }
+        )
+    return articles
+
+
 # 메인화면 뷰
-@login_required
 def main(request):
-    return render(request, "base.html")
+    # results = MatchResult.objects.filter(team=team) if team else None
+    teams = Team.objects.all().order_by("-points", "-goal_difference")
+    team_rankings = []
+    for t in teams:
+        team_rankings.append(
+            {
+                "team": t,
+                "match_count": t.match_count,
+                "win_count": t.win_count,
+                "draw_count": t.draw_count,
+                "lose_count": t.lose_count,
+                "goal_difference": t.goal_difference,
+                "points": t.points,
+            }
+        )
 
+    # 모든 팀의 경기 일정 가져오기
+    matches = Match.objects.all().order_by("-date")
+    match_results = MatchResult.objects.all()
 
-# 마이페이지 뷰
-# @login_required
-# def mypage_view(request):
-#     return render(request, "accounts/mypage.html", {"user": request.user})
+    # 축구 뉴스 기사 가져오기
+    articles = fetch_football_news()
 
-
-# @login_required
-# def edit_mypage(request):
-#     # 입력받은 폼 필드값들 받아서 인스탄스 변수에 저장
-#     if request.method == "POST":
-#         form = EditProfileForm(request.POST, request.FILES, instance=request.user)
-#         if form.is_valid():
-#             form.save()
-#             return redirect("accounts:mypage")
-#     # 마이페이지 방문시 GET요청으로 사용자 정보 불러옴
-#     else:
-#         form = EditProfileForm(instance=request.user)
-#     return render(request, "accounts/edit_mypage.html", {"form": form})
+    context = {
+        "team": team,
+        "team_rankings": team_rankings,
+        "matches": matches,
+        "match_results": match_results,
+        "articles": articles,
+    }
+    return render(request, "accounts/main.html", context)
 
 
 @method_decorator(login_required, name="dispatch")
 class MyPageView(DetailView):
     model = User
     template_name = "accounts/mypage.html"
+
     context_object_name = "user"
 
     def get_object(self):
         return self.request.user
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["team"] = self.request.user.team_no
+        return context
+
 
 mypage_view = MyPageView.as_view()
 
 
-# @method_decorator(login_required, name="dispatch")
 class EditProfileView(LoginRequiredMixin, UpdateView):
     model = User
     form_class = EditProfileForm
@@ -271,6 +225,9 @@ def password_change(request):
             update_session_auth_hash(request, user)
             messages.success(request, "비밀번호가 성공적으로 변경되었습니다.")
             return render(request, "accounts/password_change_done.html")
+        else:
+            for error in form.errors.values():
+                messages.error(request, error)
     else:
         form = CustomPasswordChangeForm(request.user)
     return render(request, "accounts/password_change.html", {"form": form})
@@ -281,18 +238,33 @@ def password_change_done(request):
     return render(request, "accounts/password_change_done.html")
 
 
-from django.contrib.auth.views import PasswordResetView as DjangoPasswordResetView
-from django.contrib.auth.views import (
-    PasswordResetConfirmView as DjangoPasswordResetConfirmView,
-)
-
-
 class PasswordResetView(DjangoPasswordResetView):
+    template_name = "accounts/password_reset_form.html"
     email_template_name = "accounts/password_reset_email.html"
-    success_url = reverse_lazy("accounts:password_reset")
+    success_url = reverse_lazy("accounts:main")
+    form_class = PasswordResetForm
 
-    def form_valid(self, form) -> HttpResponse:
-        response = super().form_valid(form)
+    def form_valid(self, form):
+        email = form.cleaned_data.get("email")
+        users = User.objects.filter(email=email, is_active=True)
+
+        for user in users:
+            token = token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            context = {
+                "email": email,
+                "domain": self.request.get_host(),
+                "site_name": "Your Site Name",
+                "uid": uid,
+                "user": user,  # Add user to context
+                "token": token,
+                "protocol": "https" if self.request.is_secure() else "http",
+            }
+            subject = "Password Reset on Your Site Name"
+            email_template_name = self.email_template_name
+            email_content = loader.render_to_string(email_template_name, context)
+            send_mail(subject, email_content, settings.DEFAULT_FROM_EMAIL, [user.email])
+
         messages.success(
             self.request,
             (
@@ -301,26 +273,31 @@ class PasswordResetView(DjangoPasswordResetView):
                 "만약 이메일을 받지 못했다면 등록하신 이메일을 다시 확인하시거나 스팸함을 확인해주세요."
             ),
         )
-        return response
+        return HttpResponseRedirect(self.success_url)
 
 
 password_reset = PasswordResetView.as_view()
 
 
 class PasswordResetConfirmView(DjangoPasswordResetConfirmView):
+    template_name = "accounts/password_reset_confirm.html"
     post_reset_login = True
-    # 암호 재설정 후 로그인페이지로 이동시키기
-    success_url = settings.LOGIN_REDIRECT_URL
+    success_url = reverse_lazy("accounts:main")
 
     def form_valid(self, form) -> HttpResponse:
         response = super().form_valid(form)
-
         messages.success(self.request, "암호를 재설정하고, 자동 로그인했습니다.")
-
         return response
 
 
 password_reset_confirm = PasswordResetConfirmView.as_view()
+
+
+class PasswordResetDoneView(DjangoPasswordResetDoneView):
+    template_name = "accounts/password_reset_done.html"
+
+
+password_reset_done = PasswordResetDoneView.as_view()
 
 
 def find_id(request):

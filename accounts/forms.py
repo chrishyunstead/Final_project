@@ -20,131 +20,18 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 
-# class SignupForm(UserCreationForm):
-#     user_no = forms.ModelChoiceField(queryset=User.objects.all(), required=True)
-#     username = forms.CharField(max_length=20, required=True)
-#     email = forms.EmailField(required=True, max_length=45)
-#     birthday = forms.DateField(
-#         required=True, widget=forms.DateInput(attrs={"type": "date"})
-#     )
-#     gender = forms.ChoiceField(choices=Authentication.GENDER_CHOICES, required=True)
-#     cell_phone = forms.CharField(max_length=20, required=True)
-#
-#     # Additional fields for player profile
-#     sido_name = forms.ModelChoiceField(
-#         queryset=SiggAreas.objects.values_list("sido_name", flat=True).distinct(),
-#         required=True,
-#         empty_label="Select City",
-#     )
-#     sigg_name = forms.ModelChoiceField(
-#         queryset=SiggAreas.objects.none(),  # 초기값은 비워둠
-#         required=True,
-#         empty_label="Select District",
-#     )
-#     position_1 = forms.ChoiceField(
-#         choices=[
-#             ("공격", "공격"),
-#             ("미드", "미드"),
-#             ("수비", "수비"),
-#             ("골키퍼", "골키퍼"),
-#         ],
-#         required=True,
-#         widget=forms.RadioSelect,
-#     )
-#     ability_1 = forms.ChoiceField(
-#         choices=[
-#             ("슛", "슛"),
-#             ("패스", "패스"),
-#             ("드리블", "드리블"),
-#             ("체력", "체력"),
-#             ("스피드", "스피드"),
-#             ("피지컬", "피지컬"),
-#         ],
-#         required=True,
-#         widget=forms.RadioSelect,
-#     )
-#     level = forms.IntegerField(min_value=1, max_value=5, required=True)
-#
-#     class Meta(UserCreationForm.Meta):
-#         model = Authentication
-#         fields = [
-#             "user_no",
-#             "username",
-#             "password1",
-#             "password2",
-#             "email",
-#             "birthday",
-#             "gender",
-#             "cell_phone",
-#             "sido_name",
-#             "sigg_name",
-#             "position_1",
-#             "ability_1",
-#             "level",
-#         ]
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         if "sido_name" in self.data:
-#             try:
-#                 city = self.data.get("sido_name")
-#                 self.fields["sigg_name"].queryset = SiggAreas.objects.filter(
-#                     sido_name=city
-#                 ).values_list("sigg_name", flat=True)
-#             except (ValueError, TypeError):
-#                 pass  # invalid input from the client; ignore and fallback to empty district queryset
-#         else:
-#             self.fields["sigg_name"].queryset = SiggAreas.objects.none()
-#
-#         # 이메일 주소 필수필드로 만들기
-#         self.fields["email"].required = True
-#
-#         self.helper = FormHelper()
-#         self.helper.attrs = {"novalidate": True}
-#         self.helper.layout = Layout(
-#             "user_no",
-#             "username",
-#             "password1",
-#             "password2",
-#             "email",
-#             "birthday",
-#             "gender",
-#             "cell_phone",
-#             "sido_name",
-#             "sigg_name",
-#             "position_1",
-#             "ability_1",
-#             "level",
-#             HTML("<h2>플레이어 포지션</h2>"),
-#             Field("position_1", template="accounts/custom_radio.html"),
-#             HTML("<h2>자신있는 능력</h2>"),
-#             Field("ability_1", template="accounts/custom_radio.html"),
-#             HTML("<hr>"),
-#             HTML("<h2>축구 수준</h2>"),
-#             Field("level", template="accounts/custom_slider.html"),
-#             Submit("submit", "회원가입", css_class="w-100"),
-#         )
-#
-#     def clean_email(self):
-#         email = self.cleaned_data.get("email")
-#         if email:
-#             user_qs = Authentication.objects.filter(email__iexact=email)
-#             if user_qs.exists():
-#                 raise ValidationError("이미 등록된 이메일 주소입니다.")
-#         return email
-
-
 class SignupForm(UserCreationForm):
-    user_id = forms.CharField(max_length=20, required=True)
-    username = forms.CharField(max_length=20, required=True)
-    email = forms.EmailField(required=True, max_length=45)
+    user_id = forms.CharField(max_length=20, required=True, label="사용자 ID")
+    username = forms.CharField(max_length=20, required=True, label="사용자 이름")
+    email = forms.EmailField(required=True, max_length=45, label="Email")
     birth_date = forms.DateField(
-        required=True, widget=forms.DateInput(attrs={"type": "date"})
+        required=True, label="생년월일", widget=forms.DateInput(attrs={"type": "date"})
     )
-    gender = forms.ChoiceField(choices=User.GENDER_CHOICES, required=True)
+    gender = forms.ChoiceField(choices=User.GENDER_CHOICES, required=True, label="성별")
     cellphone = forms.CharField(
         max_length=15,
         required=False,
+        label="휴대전화 번호",
         widget=forms.TextInput(attrs={"placeholder": "예)01012341234"}),
     )
     sido_name = forms.ChoiceField(
@@ -163,6 +50,7 @@ class SignupForm(UserCreationForm):
     nickname = forms.CharField(
         max_length=10,
         required=True,
+        label="닉네임",
         widget=forms.TextInput(attrs={"placeholder": "최대 10자"}),
     )
     position_1 = forms.ChoiceField(
@@ -231,7 +119,11 @@ class SignupForm(UserCreationForm):
             HTML("<h2>자신있는 능력</h2>"),
             Field("ability_1", template="accounts/custom_radio.html"),
             HTML("<hr>"),
-            HTML("<h2>축구 수준</h2>"),
+            HTML(
+                """
+                <h2>축구 수준 <span id="info-icon" style="cursor: pointer; color: blue;">&#33;</span></h2>
+                """
+            ),
             Field("level", template="accounts/custom_slider.html"),
             Submit("submit", "회원가입", css_class="w-100"),
         )
@@ -246,10 +138,11 @@ class SignupForm(UserCreationForm):
 
 
 class EditProfileForm(forms.ModelForm):
-    username = forms.CharField(max_length=20, required=True)
+    username = forms.CharField(max_length=20, required=True, label="사용자 이름")
     nickname = forms.CharField(
         max_length=10,
         required=True,
+        label="닉네임",
         widget=forms.TextInput(attrs={"placeholder": "최대 10자"}),
     )
     sido_name = forms.ChoiceField(
@@ -258,16 +151,17 @@ class EditProfileForm(forms.ModelForm):
             for sido in SiggAreas.objects.values_list("sido_name", flat=True).distinct()
         ],
         required=True,
-        label="City",
+        label="도시",
     )
     sigg_name = forms.ChoiceField(
         choices=[(sigg.sigg_name, sigg.sigg_name) for sigg in SiggAreas.objects.all()],
         required=True,
-        label="District",
+        label="시군구",
     )
     introduction = forms.CharField(
         max_length=55,
         required=False,
+        label="자기소개",
         widget=forms.TextInput(
             attrs={"placeholder": "최대 55자", "style": "width: 100%;"}
         ),
@@ -386,6 +280,12 @@ class CustomPasswordChangeForm(PasswordChangeForm):
             attrs={"class": "form-control", "placeholder": "새 비밀번호 확인"}
         ),
     )
+
+    def clean_old_password(self):
+        old_password = self.cleaned_data.get("old_password")
+        if not self.user.check_password(old_password):
+            raise forms.ValidationError("기존 비밀번호가 올바르지 않습니다.")
+        return old_password
 
 
 token_generator = default_token_generator

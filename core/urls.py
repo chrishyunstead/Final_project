@@ -6,5 +6,5 @@ from . import views
 app_name = "core"
 
 urlpatterns = [
-    path("", TemplateView.as_view(template_name="base.html"), name="base"),
+    path("", TemplateView.as_view(template_name="accounts/main.html"), name="main"),
 ]

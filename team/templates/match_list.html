@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2>경기 목록</h2>
+    <div class="row">
+        {% for match in matches %}
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                     <div class="card-body">
+                        <h5 class="card-title">팀 이름: {{ match.team.team_name }}</h5>
+                        <p class="card-text">일자: {{ match.date }} {{ match.time }}</p>
+                        <p class="card-text">장소: {{ match.court_name }}</p>
+                        <p class="card-text">성별: {{ match.gender }}</p>
+                        <p class="card-text">인원: {{ match.members_count }}명</p>
+                        <p class="card-text">수준: {{ match.level }}</p>
+                        <p class="card-text">모집 현황: {{ match.status }}</p>
+                        {% if match.status != "모집 마감" and match.team_vs is None and user.team_no and user.team_no.created_by == user %}
+                            <form action="{% url 'team:join_match' match.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary">경기 참여</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="text-end">
+        {% if user.team_no and user.team_no.created_by == user %}
+            <a href="{% url 'team:create_match' %}" class="btn btn-primary">경기 생성</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 메시지를 표시할 영역 -->
+{% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}

@@ -6,9 +6,10 @@ from crispy_forms.layout import Layout, Field, Submit, Row, Column, HTML
 from django import forms
 from django.core.files import File
 from django.core.files.base import ContentFile
+from django.db.models import Q
 
 from accounts.models import SiggAreas
-from .models import Team, Court
+from .models import Team, Court, Match, MatchResult
 
 
 class TeamForm(forms.ModelForm):
@@ -181,3 +182,169 @@ class TeamForm(forms.ModelForm):
             return thumb_file
 
         return team_image_url
+
+
+class MatchForm(forms.ModelForm):
+    date = forms.DateField(
+        label="경기 날짜",
+        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+    )
+    time = forms.TimeField(
+        label="경기 시간",
+        widget=forms.TimeInput(attrs={"type": "time", "class": "form-control"}),
+    )
+    gender = forms.ChoiceField(
+        label="성별",
+        choices=Match.GENDER_CHOICES,
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
+
+    level = forms.ChoiceField(
+        choices=[
+            ("풋린이", "풋린이"),
+            ("풋내기", "풋내기"),
+            ("풋아마", "풋아마"),
+            ("풋현역", "풋현역"),
+            ("풋롱도르", "풋롱도르"),
+        ],
+        required=True,
+        widget=forms.RadioSelect,
+        label="팀 수준",
+    )
+    sido_name = forms.ChoiceField(
+        choices=[
+            (sido, sido)
+            for sido in SiggAreas.objects.values_list("sido_name", flat=True).distinct()
+        ],
+        required=True,
+        label="도시",
+    )
+    sigg_name = forms.ChoiceField(
+        choices=[(sigg.sigg_name, sigg.sigg_name) for sigg in SiggAreas.objects.all()],
+        required=True,
+        label="지역구",
+    )
+    court_name = forms.ChoiceField(
+        choices=[
+            (court, court)
+            for court in Court.objects.values_list("court_name", flat=True).distinct()
+        ],
+        required=True,
+        label="주 활동구장",
+    )
+    members_count = forms.IntegerField(
+        label="참여 인원",
+        min_value=1,  # 최소값 설정
+        required=True,  # 필수 입력 필드로 설정
+        widget=forms.NumberInput(
+            attrs={
+                "class": "form-control",  # Bootstrap 클래스를 추가하여 스타일 지정
+                "placeholder": "참여 인원을 입력하세요",  # 입력 필드에 플레이스홀더 추가
+            }
+        ),
+    )
+
+    class Meta:
+        model = Match
+        fields = [
+            "date",
+            "time",
+            "sido_name",
+            "sigg_name",
+            "court_name",
+            "gender",
+            "members_count",
+            "level",
+        ]
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"}),
+            "time": forms.TimeInput(attrs={"type": "time"}),
+        }
+
+
+class MatchResultForm(forms.ModelForm):
+    date = forms.ChoiceField(choices=[], required=True, label="경기 날짜")
+    opponent = forms.ModelChoiceField(
+        queryset=Team.objects.none(), required=True, label="상대팀"
+    )
+
+    class Meta:
+        model = MatchResult
+        fields = [
+            "date",
+            "opponent",
+            "result",
+            "goals_for",
+            "goals_against",
+            "video_file",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+        if user:
+            # 작성된 경기 날짜 제외
+            written_dates = MatchResult.objects.values_list("date", flat=True)
+            matches = (
+                Match.objects.filter(
+                    (Q(team__created_by=user) | Q(team_vs__created_by=user))
+                    & Q(status="모집 마감")
+                )
+                .exclude(date__in=written_dates)
+                .distinct()
+            )
+            self.fields["date"].choices = [
+                (match.date, match.date) for match in matches
+            ]
+            self.fields["opponent"].queryset = Team.objects.filter(
+                Q(pk__in=matches.values_list("team", flat=True))
+                | Q(pk__in=matches.values_list("team_vs", flat=True))
+            ).distinct()
+
+
+class MatchResultEditForm(forms.ModelForm):
+    date = forms.ChoiceField(choices=[], required=True, label="경기 날짜")
+    opponent = forms.ModelChoiceField(
+        queryset=Team.objects.none(), required=True, label="상대팀"
+    )
+
+    class Meta:
+        model = MatchResult
+        fields = [
+            "date",
+            "opponent",
+            "result",
+            "goals_for",
+            "goals_against",
+            "video_file",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+        if user:
+            # 작성된 경기 날짜 포함
+            written_dates = MatchResult.objects.filter(created_by=user).values_list(
+                "date", flat=True
+            )
+            matches = Match.objects.filter(
+                Q(team__created_by=user) | Q(team_vs__created_by=user),
+                date__in=written_dates,
+                status="모집 마감",
+            ).distinct()
+            self.fields["date"].choices = [
+                (match.date, match.date) for match in matches
+            ]
+            self.fields["opponent"].queryset = Team.objects.filter(
+                Q(pk__in=matches.values_list("team", flat=True))
+                | Q(pk__in=matches.values_list("team_vs", flat=True))
+            ).distinct()
+
+
+class DateSelectForm(forms.Form):
+    date = forms.ChoiceField(choices=[], label="날짜 선택")
+
+    def __init__(self, *args, **kwargs):
+        match_dates = kwargs.pop("match_dates", [])
+        super().__init__(*args, **kwargs)
+        self.fields["date"].choices = [(date, date) for date in match_dates]

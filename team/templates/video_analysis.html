@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>팀 경기 영상 분석 - {{ team.team_name }}</h2>
+
+    <!-- 날짜 선택 폼 -->
+    <form method="post" class="mb-4">
+        {% csrf_token %}
+        {{ form.date.label_tag }} {{ form.date }}
+        <button type="submit" class="btn btn-primary">선택</button>
+    </form>
+
+    <div class="row">
+        {% for match_result in match_results %}
+            {% if match_result.team == team %}
+                {% if match_result.video_file %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ match_result.date }}: {{ match_result.team.team_name }} vs {{ match_result.opponent.team_name }}</h5>
+                                <p class="card-text"><strong>결과:</strong> {{ match_result.get_result_display }}</p>
+                                <p class="card-text"><strong>득점:</strong> {{ match_result.goals_for }}</p>
+                                <p class="card-text"><strong>실점:</strong> {{ match_result.goals_against }}</p>
+                                <p class="card-text"><strong>비디오 파일:</strong></p>
+                                <video width="100%" controls>
+                                    <source src="{{ match_result.video_file.url }}" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

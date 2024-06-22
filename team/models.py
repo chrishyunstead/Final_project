@@ -74,6 +74,12 @@ class Team(models.Model):
     sido_name = models.CharField(max_length=10)
     sigg_name = models.CharField(max_length=10)
     court_name = models.CharField(max_length=50)
+    match_count = models.PositiveIntegerField(default=0)
+    win_count = models.PositiveIntegerField(default=0)
+    draw_count = models.PositiveIntegerField(default=0)
+    lose_count = models.PositiveIntegerField(default=0)
+    goal_difference = models.IntegerField(default=0)
+    points = models.PositiveIntegerField(default=0)
 
     class Meta:
         managed = True
@@ -87,3 +93,158 @@ class Team(models.Model):
 
     def is_leader(self, user):
         return self.created_by == user
+
+    def delete(self, *args, **kwargs):
+        # 팀 삭제 시 members 필드를 비워야 합니다.
+        self.members.clear()
+        super().delete(*args, **kwargs)
+
+
+# 팀 채팅 메시지
+class Message(models.Model):
+    team = models.ForeignKey(
+        "team.Team", related_name="messages", on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username}: {self.content[:20]}"
+
+
+# 팀 매치
+class Match(models.Model):
+    team = models.ForeignKey(
+        "team.Team",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="matches",
+    )
+    team_vs = models.ForeignKey(
+        "team.Team",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="applied_matches",
+    )
+    date = models.DateField()
+    time = models.TimeField()
+    sido_name = models.CharField(max_length=10)
+    sigg_name = models.CharField(max_length=10)
+    court_name = models.CharField(max_length=50)
+    GENDER_CHOICES = [
+        ("여성", "여성"),
+        ("남성", "남성"),
+        ("혼성", "혼성"),
+    ]
+    gender = models.CharField(
+        max_length=2, choices=GENDER_CHOICES, null=True, blank=True
+    )
+    members_count = models.PositiveIntegerField()
+    level = models.CharField(max_length=4)
+    status = models.CharField(max_length=10, default="모집중")
+
+    def __str__(self):
+        return f"{self.team} - {self.date} {self.time} at {self.court_name}"
+
+    def join_match(self, team):
+        if self.team_vs is None:
+            self.team_vs = team
+            self.status = "모집 마감"
+            self.save()
+            return True
+        return False
+
+
+class MatchResult(models.Model):
+    team = models.ForeignKey(
+        "team.Team",
+        related_name="results",
+        on_delete=models.SET_NULL,
+        null=True,
+    )
+    opponent = models.ForeignKey(
+        "team.Team",
+        related_name="opponent_results",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    date = models.DateField()
+    result = models.CharField(
+        max_length=1, choices=[("W", "Win"), ("D", "Draw"), ("L", "Lose")]
+    )
+    # 득점
+    goals_for = models.IntegerField()
+    # 실점
+    goals_against = models.IntegerField()
+
+    # 비디오파일 업로드
+    video_file = models.FileField(upload_to="analysis/files/%Y/%m/%d/", null=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name="match_results", on_delete=models.CASCADE
+    )
+
+    class Meta:
+        ordering = ["date"]
+
+    @property
+    def goal_difference(self):
+        return self.goals_for - self.goals_against
+
+    @property
+    def points(self):
+        if self.result == "W":
+            return 3
+        elif self.result == "D":
+            return 1
+        else:
+            return 0
+
+    def __str__(self):
+        return f"{self.team.team_name} vs {self.opponent.team_name} on {self.date}"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        update_team_ranking(self.team)
+        update_opponent_ranking(self)
+
+        # Create or update the opponent's MatchResult
+
+
+def update_team_ranking(team):
+    team_results = team.results.all()
+    match_count = team_results.count()
+    win_count = team_results.filter(result="W").count()
+    draw_count = team_results.filter(result="D").count()
+    lose_count = team_results.filter(result="L").count()
+    goal_difference = sum(result.goal_difference for result in team_results)
+    points = sum(result.points for result in team_results)
+
+    team.match_count = match_count
+    team.win_count = win_count
+    team.draw_count = draw_count
+    team.lose_count = lose_count
+    team.goal_difference = goal_difference
+    team.points = points
+    team.save()
+
+
+def update_opponent_ranking(match_result):
+    opponent_results = MatchResult.objects.filter(team=match_result.opponent)
+    match_count = opponent_results.count()
+    win_count = opponent_results.filter(result="W").count()
+    draw_count = opponent_results.filter(result="D").count()
+    lose_count = opponent_results.filter(result="L").count()
+    goal_difference = sum(result.goal_difference for result in opponent_results)
+    points = sum(result.points for result in opponent_results)
+
+    opponent = match_result.opponent
+    opponent.match_count = match_count
+    opponent.win_count = win_count
+    opponent.draw_count = draw_count
+    opponent.lose_count = lose_count
+    opponent.goal_difference = goal_difference
+    opponent.points = points
+    opponent.save()

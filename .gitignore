@@ -4,19 +4,18 @@ venv
 db.sqlite3
 __pycache__
 staticfiles
-mediafiles
+#mediafiles
 .DS_Store
 .python-version
 draft_models.py
 .venv
 my_settings.py
-
 # Django #
 *.log
 *.pot
 *.pyc
 __pycache__/
-media
+#media
 
 
 # If your build process includes running tests, coverage reports will go here

@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django_components.safer_staticfiles",
+    "django.contrib.humanize",
+    "django.contrib.syndication",
     "crispy_forms",
     "crispy_bootstrap5",
     "django_components",
@@ -62,7 +64,22 @@ INSTALLED_APPS = [
     "core",
     "accounts.templatetags",
     "team",
+    "channels",
+    "widget_tweaks",
 ]
+
+# 팀채팅 구현
+ASGI_APPLICATION = "mysite.asgi.application"
+
+# 로컬에서 실행될 수 있게
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 
 if DEBUG:
     INSTALLED_APPS += [
@@ -151,16 +168,23 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = "static/"
+# STATIC_URL = "static/"
+#
+# STATICFILES_DIRS = [
+#     BASE_DIR / "core" / "src-django-components",
+# ]
+#
+#
+# MEDIA_URL = "/media/"
+#
+# MEDIA_ROOT = BASE_DIR / "media"
 
+STATIC_URL = "static/"
 STATICFILES_DIRS = [
     BASE_DIR / "core" / "src-django-components",
 ]
-
-
-MEDIA_URL = "/media/"
-
 MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_URL = "/media/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -207,13 +231,14 @@ REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
-        "core.renderers.PandasXlsxRenderer",
-        "core.renderers.WordcloudRenderer",
+        # "core.renderers.PandasXlsxRenderer",
+        # "core.renderers.WordcloudRenderer",
     ],
     "PAGE_SIZE": env.int("REST_FRAMEWORK_PAGE_SIZE", 5),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
 }
-
+# 이거 설정해야지 로그인 장식자가 적용돼서 로그인 안 한 사람이 접근하려고 하면 로그인페이지로 넘김
+LOGIN_URL = "accounts:login"
 
 LOGIN_REDIRECT_URL = reverse_lazy("accounts:main")
 

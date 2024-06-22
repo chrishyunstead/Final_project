@@ -1,4 +1,5 @@
 {% load crispy_forms_tags %}
+{% load static %}
 
 <div class="row py-5">
     <div class="col-lg-6 offset-lg-3 col-md-8 offset-md-2 col-sm-10 offset-sm-1">
@@ -22,3 +23,61 @@
         </div>
     </div>
 </div>
+
+{# 메타데이터 #}
+<div id="metadata-popup" class="metadata-popup">
+    <span class="close">&times;</span>
+    <h2>축구 수준의 종류</h2>
+    <p>풋린이가 가장 낮은 수준, 풋롱도르가 가장 높은 수준이에요.</p>
+    <ul>
+        <li><strong>풋린이(Beginner)</strong> 풋살을 처음 시작한 단계로, 기본적인 풋살 기술에 익숙하지 않은 실력을 갖고 있어요.</li>
+        <li><strong>풋내기(Novice)</strong> 몇 차례의 풋살 게임을 경험한 정도로, 약간의 경험은 있지만 아직 미숙한 수준이에요.</li>
+        <li><strong>풋아마(Amateur)</strong> 꾸준히 풋살을 즐기며 기본 기술을 익힌 중간 수준의 단계에요. 기본적인 기술을 보유하고 있지만 아직 발전의 여지가 많아요.</li>
+        <li><strong>풋현역(Intermediate)</strong> 많은 풋살 게임 경험이 있고 전술적인 이해도가 높아요. 다양한 기술을 보유하고 있으며 팀원들과의 협업도 원활해요.</li>
+        <li><strong>풋롱도르(Expert)</strong> 가장 뛰어난 수준으로 전문적인 기술과 팀원들과의 완벽한 협업을 자랑해요. 전략적이고 창의적인 플레이에 능숙하며, 리더십이 뛰어난 분들이에요.</li>
+    </ul>
+</div>
+
+<!-- 팝업을 위한 CSS -->
+<style>
+    .metadata-popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border: 1px solid #ccc;
+        padding: 20px;
+        z-index: 1000;
+    }
+    .metadata-popup .close {
+        cursor: pointer;
+        color: red;
+    }
+</style>
+
+<!-- 팝업을 위한 JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var infoIcon = document.getElementById('info-icon');
+    if (infoIcon) {
+        var popup = document.getElementById('metadata-popup');
+        var closeBtn = document.querySelector('.metadata-popup .close');
+
+        infoIcon.addEventListener('click', function() {
+            popup.style.display = 'block';
+        });
+
+        closeBtn.addEventListener('click', function() {
+            popup.style.display = 'none';
+        });
+
+        window.addEventListener('click', function(event) {
+            if (event.target == popup) {
+                popup.style.display = 'none';
+            }
+        });
+    }
+});
+</script>

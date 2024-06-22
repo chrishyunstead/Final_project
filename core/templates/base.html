@@ -9,7 +9,18 @@
     <title>Football Agora</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'bootstrap/5.3.3/css/bootstrap.min.css' %}"/>
+    <link href='https://unpkg.com/fullcalendar@5.3.1/main.min.css' rel='stylesheet' />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+
     <style>
+
+    {#<script src='https://unpkg.com/fullcalendar@5.3.1/main.min.js'></script>#}
+    {#<style>#}
+        .cute-font {
+            font-family: 'Comic Neue', 'Noto Sans KR', sans-serif !important;
+        }
+
         .nav-pills {
             display: flex;
             justify-content: center;
@@ -52,13 +63,14 @@
         .dropdown-menu a {
             display: block;
             padding: 10px;
-            color: black;
+            color: black !important;
             text-decoration: none;
             white-space: nowrap;
         }
 
         .dropdown-menu a:hover {
             background-color: #f0f0f0;
+            color: black !important;
         }
 
         .dropdown-toggle::after {
@@ -124,12 +136,47 @@
             border-color: #d39e00;
         }
 
+        .banner {
+            position: relative;
+            text-align: center;
+            color: white;
+        }
 
+        .banner img {
+            width: 100%;
+            height: 400px;
+        }
+
+        .banner .slogan {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+
+        /* 검정색 상단 바 길이 조정 */
+        header.p-3.text-bg-dark {
+            height: 100px; /* 바 높이를 늘립니다. 필요에 따라 높이를 조정하세요 */
+            display: flex;
+            align-items: center;
+        }
+
+        /* 상단 바 안의 글씨 크기 조정 */
+        header.p-3.text-bg-dark a,
+        header.p-3.text-bg-dark .profile-container span,
+        header.p-3.text-bg-dark .profile-buttons a {
+            font-size: 20px; /* 글씨 크기를 늘립니다. 필요에 따라 크기를 조정하세요 */
+            color: snow; /* 글씨 색상을 흰색으로 유지합니다 */
+        }
 
     </style>
     {% component_css_dependencies %}
 </head>
-<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' class="cute-font">
 
 <header class="p-3 text-bg-dark">
     <div class="container">
@@ -154,7 +201,7 @@
                             </ul>
                         </div>
                         <div class="profile-buttons">
-                            <a hx-post="{% url 'accounts:logout' %}?next={{ request.path }}" hx-target="body" hx-push-url="true" class="btn btn-warning">로그아웃</a>
+                            <a hx-post="{% url 'accounts:logout' %}?next={% url 'accounts:main' %}" hx-target="body" hx-push-url="true" class="btn btn-warning">로그아웃</a>
                             <a href="{% url 'accounts:password_change' %}" class="btn btn-warning">비밀번호 변경</a>
                         </div>
                     </div>
@@ -163,25 +210,30 @@
         </div>
     </div>
 </header>
+
+
+
 <main class="py-5">
     <div class="container">
         <header class="d-flex justify-content-center py-3">
             <ul class="nav nav-pills">
-                <li class="nav-item navbar-item"><a href="#" class="nav-link" aria-current="page">풋살장 예약</a></li>
+{#                <li class="nav-item navbar-item"><a href="#" class="nav-link" aria-current="page">풋살장 예약</a></li>#}
                 <li class="nav-item navbar-item">
                     <a href="#" class="nav-link">FA TEAM</a>
                     <div class="dropdown-menu">
-                        <a href="#">Team Story</a>
-                        <a href="#">Team Match</a>
+                        <a href="{% url 'team:team_story' %}">Team Story</a>
+                        <a href="{% url 'team:match_list' %}">Team Match</a>
                         <a href="{% url 'team:myteam' %}">My Team</a>
                     </div>
                 </li>
                 <li class="nav-item navbar-item"><a href="#" class="nav-link">Chatbot</a></li>
             </ul>
         </header>
+         {% block banner %}{% endblock %}
         {% block content %}{% endblock %}
     </div>
 </main>
+
 <footer class="text-body-secondary py-5">
     <div class="container">
     </div>
@@ -192,7 +244,6 @@
     <script src="{% static 'htmx/1.9.11/htmx.min.js' %}"></script>
 {% endif %}
 <script src="{% static 'bootstrap/5.3.3/js/bootstrap.bundle.min.js' %}"></script>
-
 {% component_js_dependencies %}
 <script src="{% static 'htmx/ext/ hx-get-with-timestamp.js' %}"></script>
 <script src="{% static 'toast-messages.js' %}"></script>
@@ -201,3 +252,4 @@
 
 </body>
 </html>
+

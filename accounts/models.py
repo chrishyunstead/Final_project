@@ -45,11 +45,11 @@ class User(AbstractUser):
     email = models.CharField(unique=True, max_length=45)
     birth_date = models.DateField(null=True, blank=True)
     GENDER_CHOICES = [
-        ("M", "Male"),
-        ("F", "Female"),
+        ("여성", "여성"),
+        ("남성", "남성"),
     ]
     gender = models.CharField(
-        max_length=1, choices=GENDER_CHOICES, null=True, blank=True
+        max_length=2, choices=GENDER_CHOICES, null=True, blank=True
     )
     cellphone = models.CharField(max_length=15, null=True, blank=True)
 

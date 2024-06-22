@@ -8,5 +8,5 @@ class ModalForm(Component):
     class Media:
         js = [
             "observe-node-insertion.js",
-            "modal_form/team_create_modal_form.js",
+            # "modal_form/team_create_modal_form.js",
         ]
