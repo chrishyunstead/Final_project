@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-from django.views.generic import TemplateView, CreateView
+from django.views.generic import TemplateView, CreateView, UpdateView
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 
@@ -150,6 +150,31 @@ class CreateTeamView(LoginRequiredMixin, CreateView):
 
 
 create_team = CreateTeamView.as_view()
+
+
+# 팀프로필 업데이트
+# updateview에서 알아서 pk인자 처리
+class UpdateTeamView(LoginRequiredMixin, UpdateView):
+    model = Team
+    form_class = TeamForm
+    template_name = "crispy_form.html"
+    extra_context = {"form_title": "팀 프로필 수정하기"}
+    success_url = reverse_lazy("team:myteam")
+
+    def dispatch(self, request, *args, **kwargs):
+        team = self.get_object()
+        # 팀장만 수정가능
+        if request.user != team.created_by:
+            messages.warning(request, "팀 프로필을 수정할 권한이 없습니다.")
+            return redirect("team:myteam")
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        messages.success(self.request, "팀 프로필이 성공적으로 수정되었습니다.")
+        return super().form_valid(form)
+
+
+update_team_profile = UpdateTeamView.as_view()
 
 
 # 팀 가입할때 보여주는 팀 리스트

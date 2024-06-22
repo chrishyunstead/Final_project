@@ -9,6 +9,12 @@ urlpatterns = [
     path("myteam/<int:team_id>/", views.myteam, name="team_dashboard"),
     # 팀 생성하기
     path("create_team/", views.create_team, name="create_team"),
+    # 팀프로필 수정
+    path(
+        "update_team_profile/<int:pk>/",
+        views.update_team_profile,
+        name="update_team_profile",
+    ),
     # 팀 가입하기 누르면 팀들 나오고 가입하기까지
     path("team_list/", views.team_list, name="team_list"),
     # 마이 팀페이지

@@ -7,6 +7,9 @@
     <div class="d-flex justify-content-between align-items-center">
         <h2>팀 프로필 <span style="color: orange;">{{ team.team_name }}</span></h2>
         <div>
+            {% if user == team.created_by %}
+                <a href="{% url 'team:update_team_profile' team.pk %}" class="btn btn-primary me-2">팀 프로필 수정</a>
+            {% endif %}
             <a href="{% url 'team:match_report' team.team_no %}" class="btn btn-primary me-2">경기 리포트 작성</a>
             {% if match_results %}
                 <a href="{% url 'team:match_report_edit' match_results.first.id %}" class="btn btn-primary me-2">경기 리포트 수정</a>
