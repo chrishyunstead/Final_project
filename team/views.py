@@ -273,11 +273,15 @@ def join_match(request, match_id):
 
 
 # 팀스토리는 접근 제한은 로그인한 사용자만으로 지정
-@login_required
+# @login_required
 def team_story(request):
-    user = request.user
-    team = user.team_no if user.team_no else None
-    results = MatchResult.objects.filter(Q(team=team) | Q(opponent=team))
+    user = request.user if request.user.is_authenticated else None
+    team = user.team_no if user and user.team_no else None
+    # results = (
+    #     MatchResult.objects.filter(Q(team=team) | Q(opponent=team))
+    #     if team
+    #     else MatchResult.objects.none()
+    # )
 
     # 모든 팀의 순위를 계산
     teams = Team.objects.all().order_by("-points", "-goal_difference")
@@ -300,11 +304,23 @@ def team_story(request):
     matches = Match.objects.all().order_by("-date")
     match_results = MatchResult.objects.all()
 
+    # 경기 일정에 결과 추가
+    match_results_dict = {}
+    for result in match_results:
+        match_key = (result.date, result.team_id, result.opponent_id)
+        match_results_dict[match_key] = result
+
+    for match in matches:
+        match_key_1 = (match.date, match.team_id, match.team_vs_id)
+        match_key_2 = (match.date, match.team_vs_id, match.team_id)
+        match.result = match_results_dict.get(match_key_1) or match_results_dict.get(
+            match_key_2
+        )
+
     context = {
         "team": team,
         "team_rankings": team_rankings,
         "matches": matches,
-        "match_results": match_results,
     }
     return render(request, "team_story.html", context)
 
@@ -533,11 +549,11 @@ class MessageListCreateAPIView(generics.ListCreateAPIView):
             return Response({"error": "User not in team"}, status=403)
 
 
-def team_chat(request, team_id):
-    team = get_object_or_404(Team, pk=team_id)
-    if request.user in team.members.all():
-        return render(request, "team_chat.html", {"team": team})
-    return render(request, "access_denied.html")
+# def team_chat(request, team_id):
+#     team = get_object_or_404(Team, pk=team_id)
+#     if request.user in team.members.all():
+#         return render(request, "team_chat.html", {"team": team})
+#     return render(request, "access_denied.html")
 
 
 # 팀원들 팀탈퇴기능

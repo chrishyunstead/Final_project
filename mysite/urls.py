@@ -5,12 +5,13 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
-
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("accounts.urls", namespace="accounts")),
     path("team/", include("team.urls")),
-    path("core", include("core.urls")),
+    path("core/", include("core.urls")),
+    path("chatbot/", include("chatbot.urls")),
+    path("chat/", include("chat.urls")),
 ]
 
 if apps.is_installed("debug_toolbar"):

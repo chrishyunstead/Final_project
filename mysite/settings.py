@@ -14,6 +14,7 @@ from django.urls import reverse_lazy
 
 from environ import Env
 
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = Env()
@@ -66,6 +67,8 @@ INSTALLED_APPS = [
     "team",
     "channels",
     "widget_tweaks",
+    "chatbot",
+    "chat",
 ]
 
 # 팀채팅 구현
@@ -76,7 +79,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+            "hosts": [("172.17.0.2", 6379)],
         },
     },
 }
@@ -129,6 +132,9 @@ WSGI_APPLICATION = "mysite.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# CSRF 설정
+CSRF_TRUSTED_ORIGINS = ["http://localhost:8000", "http://127.0.0.1:8000"]
+
 
 DATABASES = DATABASE
 
@@ -180,6 +186,7 @@ USE_TZ = True
 # MEDIA_ROOT = BASE_DIR / "media"
 
 STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATICFILES_DIRS = [
     BASE_DIR / "core" / "src-django-components",
 ]

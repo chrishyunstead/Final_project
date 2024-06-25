@@ -79,22 +79,19 @@
                     <p class="card-text">매치 수준: {{ match.level }}</p>
                     <p class="card-text">상태: {{ match.status }}</p>
 
-                    {% for result in match_results %}
-                        {% if result.date == match.date and result.team_id == match.team_id or result.team_id == match.team_vs_id %}
-                            <h5 class="highlight-text mt-3">경기 결과</h5>
-                            <p class="card-text">팀: {{ result.team }}</p>
-                            <p class="card-text">결과:
-                                {% if result.result == 'W' %} 승
-                                {% elif result.result == 'D' %} 무
-                                {% else %} 패
-                                {% endif %}
-                            </p>
-                            <p class="card-text">득점: {{ result.goals_for }}</p>
-                            <p class="card-text">실점: {{ result.goals_against }}</p>
-                            <p class="card-text">골득실: {{ result.goal_difference }}</p>
-{#                            <p class="card-text">승점: {{ result.points }}</p>#}
-                        {% endif %}
-                    {% endfor %}
+                    {% if match.result %}
+                        <h5 class="highlight-text mt-3">경기 결과</h5>
+                        <p class="card-text">팀: {{ match.result.team.team_name }}</p>
+                        <p class="card-text">결과:
+                            {% if match.result.result == 'W' %} 승
+                            {% elif match.result.result == 'D' %} 무
+                            {% else %} 패
+                            {% endif %}
+                        </p>
+                        <p class="card-text">득점: {{ match.result.goals_for }}</p>
+                        <p class="card-text">실점: {{ match.result.goals_against }}</p>
+                        <p class="card-text">골득실: {{ match.result.goal_difference }}</p>
+                    {% endif %}
                 </div>
             </div>
         </div>

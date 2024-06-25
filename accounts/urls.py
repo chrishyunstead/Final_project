@@ -8,6 +8,8 @@ urlpatterns = [
     # path("get-districts/", GetDistrictsView.as_view(), name="get-districts"),
     path("login/", views.login, name="login"),
     path("logout/", views.logout, name="logout"),
+    # 회원탈퇴
+    path("delete_user/", views.delete_user, name="delete_user"),
     # 메인화면
     path("", views.main, name="main"),
     path("mypage/", views.mypage_view, name="mypage"),

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chatbot</title>
+</head>
+<body>
+    <h1>Chatbot</h1>
+    <form id="chatbot-form">
+        {% csrf_token %}
+        <label for="input_text">You:</label>
+        <input type="text" id="input_text" name="input_text" required>
+        <button type="submit">Send</button>
+    </form>
+    <h2>Response:</h2>
+    <p id="response"></p>
+
+    <script>
+        document.getElementById('chatbot-form').onsubmit = async function(event) {
+            event.preventDefault();
+            const inputText = document.getElementById('input_text').value;
+            const responseElement = document.getElementById('response');
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            const response = await fetch('/chatbot/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({input_text: inputText})
+            });
+
+            const data = await response.json();
+            responseElement.textContent = data.response;
+        };
+    </script>
+</body>
+</html>

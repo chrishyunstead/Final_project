@@ -88,23 +88,17 @@
                         <p class="card-text">매치 수준: {{ match.level }}</p>
                         <p class="card-text">상태: {{ match.status }}</p>
 
-                        {% for result in match_results %}
-                            {% if result.date == match.date and result.team_id == match.team_id or result.team_id == match.team_vs_id %}
-{#                                <h5 class="highlight-text mt-3">경기 결과</h5>#}
-{#                                <p class="card-text">승리팀: {{ result.team.team_name }}</p>#}
-{#                                <p class="card-text">득점: {{ result.goals_for }}</p>#}
-{#                                <p class="card-text">실점: {{ result.goals_against }}</p>#}
-
-                                <h5 class="highlight-text mt-3">경기 결과</h5>
-                                <p class="card-text">{{ result.team.team_name }}:
-                                    {% if result.result == 'W' %} 승리
-                                    {% elif result.result == 'D' %} 무승부
-                                    {% else %} 패배
-                                    {% endif %}
-                                </p>
-                                <p class="card-text">{{ result.goals_for }} : {{ result.goals_against }}</p>
-                            {% endif %}
-                        {% endfor %}
+                        {% if match.result %}
+                            <h5 class="highlight-text mt-3">경기 결과</h5>
+                            <p class="card-text">{{ match.result.team.team_name }} vs {{ match.team_vs.team_name }}</p>
+                            <p class="card-text">결과: {{ match.result.team.team_name }}
+                                {% if match.result.result == 'W' %} 승
+                                {% elif match.result.result == 'D' %} 무
+                                {% else %} 패
+                                {% endif %}
+                            </p>
+                            <p class="card-text">스코어: {{ match.result.goals_for }} : {{ match.result.goals_against }}</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>회원탈퇴</h2>
+    <p>정말로 회원탈퇴를 하시겠습니까?</p>
+    <form action="" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">탈퇴</button>
+        <a href="{% url 'accounts:mypage' %}" class="btn btn-secondary">취소</a>
+    </form>
+</div>
+{% endblock %}

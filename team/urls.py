@@ -35,7 +35,7 @@ urlpatterns = [
     ),
     path("match_schedule/", views.match_schedule, name="match_schedule"),
     path("team_story/", views.team_story, name="team_story"),
-    path("chat/<int:team_id>/", views.team_chat, name="team_chat"),
+    # path("chat/<int:team_id>/", views.team_chat, name="team_chat"),
     path(
         "api/messages/<int:team_id>/",
         MessageListCreateAPIView.as_view(),
