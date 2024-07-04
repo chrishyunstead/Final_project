@@ -65,6 +65,7 @@ class SignupView(RedirectURLMixin, CreateView):
     }
     success_url = reverse_lazy("accounts:main")
 
+    # dispatch 메서드는 HTTP 요청을 처리
     def dispatch(self, request, *args, **kwargs):
         if self.request.user.is_authenticated:
             redirect_to = self.success_url
@@ -88,6 +89,7 @@ class SignupView(RedirectURLMixin, CreateView):
 signup = SignupView.as_view()
 
 
+# 장고 로그인뷰 상속해서 사용
 class LoginView(DjangoLoginView):
 
     # 로그인 유저 회원가입 및 로그인 시도 막기
@@ -96,6 +98,7 @@ class LoginView(DjangoLoginView):
     form_class = LoginForm
     template_name = "crispy_form.html"
 
+    # crispy_form에서 context 제목
     extra_context = {
         "form_title": "로그인",
     }
@@ -109,6 +112,7 @@ class LogoutView(DjangoLogoutView):
     next_page = "accounts:login"
 
     def dispatch(self, request, *args, **kwargs):
+        # super메서드는 부모 클래스(DjangoLogoutView)의 dispatch 메서드를 실행
         response = super().dispatch(request, *args, **kwargs)
         messages.success(request, "로그아웃했습니다. :-)")
         return response
@@ -150,10 +154,15 @@ def delete_user(request):
 
 # 메인화면 뷰
 def main(request):
+    # 로그인한 사용자, 로그인안한 사용자, 팀이 있는 사용자, 없는 사용자
     user = request.user if request.user.is_authenticated else None
     team = user.team_no if user and user.team_no else None
     # results = MatchResult.objects.filter(team=team) if team else None
+
+    # Team DB에서 승점, 골득실 내림차순으로 정렬
     teams = Team.objects.all().order_by("-points", "-goal_difference")
+
+    # Team DB에서 가져올것들 team_rankings 리스트에 담아주기
     team_rankings = []
     for t in teams:
         team_rankings.append(
@@ -170,17 +179,23 @@ def main(request):
 
     # 모든 팀의 경기 일정 가져오기
     matches = Match.objects.all().order_by("-date")
+
+    # MatchResult에서 다 가져오기
     match_results = MatchResult.objects.all()
 
     # 경기 일정에 결과 추가
     match_results_dict = {}
     for result in match_results:
         match_key = (result.date, result.team_id, result.opponent_id)
+
+        # match_key를 키로 하고, 해당 result를 값으로 하여 match_results_dict에 저장
         match_results_dict[match_key] = result
 
     for match in matches:
         match_key_1 = (match.date, match.team_id, match.team_vs_id)
         match_key_2 = (match.date, match.team_vs_id, match.team_id)
+
+        # match_key_1에 해당하는 결과가 없다면 match_key_2에 해당하는 결과를 가져오기
         match.result = match_results_dict.get(match_key_1) or match_results_dict.get(
             match_key_2
         )
@@ -197,6 +212,7 @@ def main(request):
     return render(request, "accounts/main.html", context)
 
 
+# login_required 데코레이터를 dispatch 메서드에 적용
 @method_decorator(login_required, name="dispatch")
 class MyPageView(DetailView):
     model = User
@@ -204,11 +220,14 @@ class MyPageView(DetailView):
 
     context_object_name = "user"
 
+    # get_object 메서드는 이 뷰에서 보여줄 객체를 반환
     def get_object(self):
         return self.request.user
 
+    # get_context_data 메서드는 템플릿에 전달할 추가 컨텍스트 데이터를 정의
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # self.request.user.team_no를 team 키로 추가하여 사용자 팀 정보를 템플릿에 전달
         context["team"] = self.request.user.team_no
         return context
 
@@ -216,6 +235,8 @@ class MyPageView(DetailView):
 mypage_view = MyPageView.as_view()
 
 
+# LoginRequiredMixin을 사용하여 로그인된 사용자만 이 뷰에 접근할 수 있도록 합니다.
+# UpdateView는 기존 객체를 수정하는 데 사용되는 제네릭 뷰입니다.
 class EditProfileView(LoginRequiredMixin, UpdateView):
     model = User
     form_class = EditProfileForm
@@ -225,6 +246,7 @@ class EditProfileView(LoginRequiredMixin, UpdateView):
     }
     success_url = reverse_lazy("accounts:mypage")
 
+    # 사용자 인증 상태를 확인하고, 인증되지 않은 경우 None을 반환합니다.
     def get_object(self, queryset=None) -> Optional[User]:
         if not self.request.user.is_authenticated:
             return None
@@ -235,8 +257,12 @@ class EditProfileView(LoginRequiredMixin, UpdateView):
             return None
 
     def form_valid(self, form):
+
+        # 폼 데이터를 저장하기 전 상태의 객체를 반환
         profile = form.save(commit=False)
         profile.user = self.request.user
+
+        # 폼을 저장하고, 기본 동작(리디렉션 등)을 수행
         response = super().form_valid(form)
         messages.success(self.request, "프로필을 저장했습니다.")
         return response
@@ -247,10 +273,14 @@ edit_mypage = EditProfileView.as_view()
 
 @login_required
 def password_change(request):
+    # 사용자가 폼을 제출하면 요청 메서드가 POST
     if request.method == "POST":
         form = CustomPasswordChangeForm(request.user, request.POST)
         if form.is_valid():
             user = form.save()
+
+            # 세션에서 인증된 사용자의 비밀번호 해시를 업데이트합니다.
+            # 이렇게 하면 비밀번호를 변경한 후에도 사용자가 로그아웃되지 않습니다.
             update_session_auth_hash(request, user)
             messages.success(request, "비밀번호가 성공적으로 변경되었습니다.")
             return render(request, "accounts/password_change_done.html")

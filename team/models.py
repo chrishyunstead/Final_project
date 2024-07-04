@@ -101,16 +101,16 @@ class Team(models.Model):
 
 
 # 팀 채팅 메시지
-class Message(models.Model):
-    team = models.ForeignKey(
-        "team.Team", related_name="messages", on_delete=models.CASCADE
-    )
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    content = models.TextField()
-    timestamp = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.user.username}: {self.content[:20]}"
+# class Message(models.Model):
+#     team = models.ForeignKey(
+#         "team.Team", related_name="messages", on_delete=models.CASCADE
+#     )
+#     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+#     content = models.TextField()
+#     timestamp = models.DateTimeField(auto_now_add=True)
+#
+#     def __str__(self):
+#         return f"{self.user.username}: {self.content[:20]}"
 
 
 # 팀 매치
@@ -181,9 +181,18 @@ class MatchResult(models.Model):
     goals_against = models.IntegerField()
 
     # 비디오파일 업로드
-    video_file = models.FileField(upload_to="analysis/files/%Y/%m/%d/", null=True)
+    video_file_left = models.FileField(
+        upload_to="analysis/files/%Y/%m/%d/left/", null=True, blank=True
+    )
+    video_file_right = models.FileField(
+        upload_to="analysis/files/%Y/%m/%d/right/", null=True, blank=True
+    )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, related_name="match_results", on_delete=models.CASCADE
+    )
+
+    players = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, related_name="match_results_players", blank=True
     )
 
     class Meta:
@@ -248,3 +257,67 @@ def update_opponent_ranking(match_result):
     opponent.goal_difference = goal_difference
     opponent.points = points
     opponent.save()
+
+
+# *관계 : 기본 User - Teamboard - BoardComment
+# 게시판 클래스
+class Teamboard(models.Model):
+    team = models.ForeignKey(
+        "team.Team", on_delete=models.CASCADE, related_name="boards"
+    )
+    # User 기본 테이블에 사용자가 지워지면 Post 데이터도 지워짐. 1(User):N(Teamboard)관계
+    createUser = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE
+    )  # 등록자
+    boardTitle = models.CharField(max_length=50)  # 게시글 제목
+    boardContent = models.TextField()  # 게시글 내용
+    boardImg = models.ImageField(blank=True, null=True)  # 첨부파일
+    createDate = models.DateTimeField(auto_now_add=True)  # 등록일
+    updateDate = models.DateField(auto_now=True)  # 수정일
+    viewCnt = models.IntegerField(default=0)  # 조회수
+    commentCnt = models.IntegerField(default=0)  # 댓글수
+
+    def __str__(self):
+        return f"{self.pk}번째 등록글 : {self.boardTitle} (등록일 : {self.createDate})"
+
+    # Teamboard 클래스내 속성은 3가지 임 : 댓글 > 참석 개수 카운팅, 불참석 개수 카운팅, 보류 개수 카운팅. 이 속성은 상세보기에서 게시글 별 참석현황 표시를 위해 사용
+    @property
+    def attend_count(self):
+        return self.comments.filter(attendStatus=0).count()
+
+    @property
+    def absent_count(self):
+        return self.comments.filter(attendStatus=1).count()
+
+    @property
+    def pending_count(self):
+        return self.comments.filter(attendStatus=2).count()
+
+
+# 댓글 게시판
+class BoardComment(models.Model):
+    ATTEND_CHOICES = [
+        (0, "참석"),
+        (1, "불참석"),
+        (2, "보류"),
+    ]
+    # Teamboard 테이블 > 등록 게시글이 지워지면 댓글 데이터도 지워짐. 1(Teamboard):N(댓글)관계
+    teamboard = models.ForeignKey(
+        "team.Teamboard", on_delete=models.CASCADE, related_name="comments"
+    )  # 게시물
+    # User 기본 테이블에 사용자가 지워지면 Post 데이터도 지워짐. 1(User):N(Teamboard)관계
+    commentUser = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE
+    )  # 등록자
+    commentMsg = models.CharField(max_length=150, blank=True, null=True)  # 댓글내용
+    attendStatus = models.SmallIntegerField(
+        default=2
+    )  # 참석여부 0:출석 1:미출석 2:보류
+    createDate = models.DateTimeField(auto_now_add=True)  # 댓글 등록일
+    updateDate = models.DateField(auto_now=True)  # 댓글 수정일
+
+    def __str__(self):
+        return f"{self.teamboard} 의 {self.pk}번째 댓글 : {self.commentMsg}(등록자 : {self.commentUser})"
+
+    def get_attend_status_display(self):
+        return dict(BoardComment.ATTEND_CHOICES).get(self.attendStatus, "Unknown")

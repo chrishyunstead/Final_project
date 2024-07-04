@@ -15,7 +15,7 @@ my_settings.py
 *.pot
 *.pyc
 __pycache__/
-#media
+media
 
 
 # If your build process includes running tests, coverage reports will go here
@@ -39,3 +39,5 @@ venv/
 ENV/
 env/
 .venv/
+
+# 영상

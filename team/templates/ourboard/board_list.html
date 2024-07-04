@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>게시판 목록</h2>
+    <a href="{% url 'team:board_create' team_id=team.team_no %}" class="btn btn-primary mb-3">게시글 작성</a>
+    <ul class="list-group">
+        {% for content in all_contents %}
+        <li class="list-group-item">
+            <a href="{% url 'team:board_detail' team_id=team.team_no pk=content.pk %}">{{ content.boardTitle }}</a>
+            <small class="text-muted">{{ content.createDate }}</small>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div class="team-board-button">
+    <a href="{% url 'team:team_dashboard' team_id=team.team_no %}" class="btn btn-secondary">My Team</a>
+</div>
+<style>
+    .team-board-button {
+        position: fixed;
+        bottom: 40px;
+        right: 40px;
+    }
+</style>
+
+
+
+
+{% endblock %}

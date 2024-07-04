@@ -1,3 +1,9 @@
+import os
+import subprocess
+from main import tracking
+from gen_viz import basic_gen
+import cv2
+import torch
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Sum, Count, Q, Case, When, IntegerField
@@ -9,16 +15,21 @@ from django.views.generic import TemplateView, CreateView, UpdateView
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 
+from mysite import settings
 from .forms import (
     TeamForm,
     MatchForm,
     MatchResultForm,
     MatchResultEditForm,
     DateSelectForm,
+    TeamBoardForm,
+    BoardCommentForm,
+    MemberSelectForm,
 )
-from .models import Team, Match, MatchResult, Message
+from .models import Team, Match, MatchResult, Teamboard, BoardComment
 from team.decorators import group_required
-from .serializers import MessageSerializer
+
+# from .serializers import MessageSerializer
 
 
 # My Team 눌렀을때 반응
@@ -58,13 +69,16 @@ def myteam(request, team_id=None):
     team_rankings = []
     for t in teams:
         team_rankings.append(
-            {
+            {  # 순위
                 "team": t,
+                # 경기 수
                 "match_count": t.match_count,
                 "win_count": t.win_count,
                 "draw_count": t.draw_count,
                 "lose_count": t.lose_count,
+                # 골득실
                 "goal_difference": t.goal_difference,
+                # 승점
                 "points": t.points,
             }
         )
@@ -379,7 +393,8 @@ def create_match_result(request, team_id):
                 goals_for=match_result.goals_against,
                 goals_against=match_result.goals_for,
                 created_by=request.user,
-                video_file=match_result.video_file,
+                video_file_left=match_result.video_file_left,
+                video_file_right=match_result.video_file_right,
             )
 
             match_result.save()
@@ -416,11 +431,36 @@ def edit_match_result(request, result_id):
     opponent_team = match_result.opponent
 
     if request.method == "POST":
+        if "delete" in request.POST:
+            # 상대 팀의 결과 삭제
+            opponent_match_result = MatchResult.objects.filter(
+                team=opponent_team, opponent=team, date=match_result.date
+            ).first()
+            if opponent_match_result:
+                opponent_match_result.delete()
+
+            # 본인 팀의 결과 삭제
+            match_result.delete()
+
+            # 팀 랭킹 업데이트
+            update_team_ranking(team)
+            if opponent_team:
+                update_team_ranking(opponent_team)
+
+            messages.success(request, "경기 리포트가 성공적으로 삭제되었습니다.")
+            return redirect("team:myteam")
+
         form = MatchResultEditForm(
             request.POST, request.FILES, instance=match_result, user=request.user
         )
         if form.is_valid():
-            form.save()
+            # form.save()
+            match_result = form.save(commit=False)
+            if "video_file_left" in request.FILES:
+                match_result.video_file_left = request.FILES["video_file_left"]
+            if "video_file_right" in request.FILES:
+                match_result.video_file_right = request.FILES["video_file_right"]
+            match_result.save()
 
             # 상대 팀의 결과 업데이트
             opponent_match_result = MatchResult.objects.filter(
@@ -434,7 +474,8 @@ def edit_match_result(request, result_id):
                 )
                 opponent_match_result.goals_for = match_result.goals_against
                 opponent_match_result.goals_against = match_result.goals_for
-                opponent_match_result.video_file = match_result.video_file
+                opponent_match_result.video_file_left = match_result.video_file_left
+                opponent_match_result.video_file_right = match_result.video_file_right
                 opponent_match_result.save()
 
             # 팀 랭킹 업데이트
@@ -456,6 +497,65 @@ def edit_match_result(request, result_id):
     )
 
 
+# @login_required
+# def video_analysis(request, team_id):
+#     team = get_object_or_404(Team, team_no=team_id)
+#
+#     if request.user not in team.members.all():
+#         messages.error(request, "팀 구성원이 아닙니다.")
+#         return redirect("team:myteam")
+#
+#     match_dates = (
+#         MatchResult.objects.filter(Q(team=team) | Q(opponent=team))
+#         .values_list("date", flat=True)
+#         .distinct()
+#     )
+#
+#     video_file_left = MatchResult.objects.filter(
+#         Q(team=team) | Q(opponent=team)
+#     ).values_list("video_file_left")
+#     video_file_right = MatchResult.objects.filter(
+#         Q(team=team) | Q(opponent=team)
+#     ).values_list("video_file_right")
+#
+#     match_results = []
+#     selected_date = None
+#     if request.method == "POST":
+#         form = DateSelectForm(request.POST, match_dates=match_dates)
+#         member_form = MemberSelectForm(request.POST, team_members=team.members.all())
+#         if form.is_valid():
+#             selected_date = form.cleaned_data["date"]
+#             match_results = MatchResult.objects.filter(
+#                 Q(team=team) | Q(opponent=team), date=selected_date
+#             ).exclude(video_file_left="", video_file_right="")
+#
+#         else:
+#             member_form = None
+#     else:
+#         form = DateSelectForm(match_dates=match_dates)
+#         # member_form = MemberSelectForm(team_members=team.members.all())
+#         member_form = None
+#         # match_results = MatchResult.objects.filter(
+#         #     Q(team=team) | Q(opponent=team)
+#         # ).exclude(
+#         #     video_file=""
+#         # )  # 초기에는 모든 날짜의 경기 결과 표시
+#
+#     return render(
+#         request,
+#         "video_analysis.html",
+#         {
+#             "team": team,
+#             "match_results": match_results,
+#             "form": form,
+#             "member_form": member_form,
+#             "selected_date": selected_date,
+#             "video_file_left": video_file_left,
+#             "video_file_right": video_file_right,
+#         },
+#     )
+
+
 @login_required
 def video_analysis(request, team_id):
     team = get_object_or_404(Team, team_no=team_id)
@@ -470,26 +570,112 @@ def video_analysis(request, team_id):
         .distinct()
     )
 
+    match_results = []
+    selected_date = None
+    viz_path_dict = {}
+
     if request.method == "POST":
         form = DateSelectForm(request.POST, match_dates=match_dates)
+        # member_form = MemberSelectForm(request.POST, team_members=team.members.all())
         if form.is_valid():
             selected_date = form.cleaned_data["date"]
             match_results = MatchResult.objects.filter(
                 Q(team=team) | Q(opponent=team), date=selected_date
-            ).exclude(video_file="")
+            ).exclude(video_file_left="", video_file_right="")
+            for match_result in match_results:
+                left_video_path = match_result.video_file_left.path
+                right_video_path = match_result.video_file_right.path
+                stub_path = tracking(left_video_path, right_video_path)
+                viz_path_dict = basic_gen(stub_path)
+                # 저장된 이미지 파일 경로를 미디어 URL로 변환
+                for key, value in viz_path_dict.items():
+                    viz_path_dict[key] = os.path.join(settings.MEDIA_URL, value)
+            else:
+                form = DateSelectForm(match_dates=match_dates)
     else:
         form = DateSelectForm(match_dates=match_dates)
-        match_results = MatchResult.objects.filter(
-            Q(team=team) | Q(opponent=team)
-        ).exclude(
-            video_file=""
-        )  # 초기에는 모든 날짜의 경기 결과 표시
 
     return render(
         request,
         "video_analysis.html",
-        {"team": team, "match_results": match_results, "form": form},
+        {
+            "team": team,
+            "match_results": match_results,
+            "form": form,
+            "selected_date": selected_date,
+            "viz_path_dict": viz_path_dict,
+            # "member_form": member_form,
+        },
     )
+
+
+# @login_required
+# def analyze_video(request, match_id):
+#     match_result = get_object_or_404(MatchResult, pk=match_id)
+#     team = match_result.team
+#
+#     if request.user not in team.members.all():
+#         messages.error(request, "팀 구성원이 아닙니다.")
+#         return redirect("team:myteam")
+#
+#     if request.method == "POST":
+#         left_video_path = match_result.video_file_left.path
+#         right_video_path = match_result.video_file_right.path
+#
+#         # 모델 분석 함수 호출
+#         viz_path_dict = main(left_video_path, right_video_path)
+#
+#         return render(
+#             request,
+#             "result.html",
+#             {
+#                 "result_image_left": viz_path_dict["left_result"],
+#                 "result_image_right": viz_path_dict["right_result"],
+#             },
+#         )
+#
+#     return redirect("team:video_analysis", team_id=team.team_no)
+
+
+# def analysis_result_basic(request, team_id):
+#     team = get_object_or_404(Team, team_no=team_id)
+#     left_video_path = request["video_file_left"]
+#     right_video_path = request["video_file_right"]
+#     stub_path = main(left_video_path, right_video_path)
+#     viz_path_dict = basic_gen(stub_path)
+#     for key, value in viz_path_dict.items():
+#         value = "adios_video/" + value
+#     return viz_path_dict
+
+
+# @login_required
+# def analyze_video(request, match_id):
+#     match_result = get_object_or_404(MatchResult, pk=match_id)
+#     team = match_result.team
+#
+#     if request.user not in team.members.all():
+#         messages.error(request, "팀 구성원이 아닙니다.")
+#         return redirect("team:myteam")
+#
+#     if request.method == "POST":
+#         video_path = match_result.video_file.path
+#         output_path = os.path.join(settings.MEDIA_ROOT, "analysis", str(match_id))
+#         os.makedirs(output_path, exist_ok=True)
+#
+#         # 모델 실행
+#         command = f"python {os.path.join(settings.BASE_DIR, 'team', 'utils', 'main.py')} --video {video_path} --output {output_path}"
+#         subprocess.run(command, shell=True)
+#
+#         # 분석 결과 이미지 경로
+#         result_image_path = os.path.join(output_path, "result_image.png")
+#
+#         return render(
+#             request,
+#             "result.html",
+#             {"result_image": result_image_path, "match_result": match_result},
+#         )
+#
+#     return redirect("team:video_analysis", team_id=team.team_no)
 
 
 def update_opponent_ranking(match_result):
@@ -529,26 +715,27 @@ def match_schedule(request):
 # 팀에 속한 사람만 볼 수 있게
 
 
-class MessageListCreateAPIView(generics.ListCreateAPIView):
-    serializer_class = MessageSerializer
-    permission_classes = [permissions.IsAuthenticated]
+# class MessageListCreateAPIView(generics.ListCreateAPIView):
+#     serializer_class = MessageSerializer
+#     permission_classes = [permissions.IsAuthenticated]
+#
+#     def get_queryset(self):
+#         user_teams = self.request.user.teams.values_list("id", flat=True)
+#         team_id = self.kwargs["team_id"]
+#         if team_id in user_teams:
+#             return Message.objects.filter(team_id=team_id).order_by("timestamp")
+#         return Message.objects.none()
+#
+#     def perform_create(self, serializer):
+#         team_id = self.kwargs["team_id"]
+#         team = get_object_or_404(Team, pk=team_id)
+#         if self.request.user in team.members.all():
+#             serializer.save(user=self.request.user, team=team)
+#         else:
+#             return Response({"error": "User not in team"}, status=403)
 
-    def get_queryset(self):
-        user_teams = self.request.user.teams.values_list("id", flat=True)
-        team_id = self.kwargs["team_id"]
-        if team_id in user_teams:
-            return Message.objects.filter(team_id=team_id).order_by("timestamp")
-        return Message.objects.none()
 
-    def perform_create(self, serializer):
-        team_id = self.kwargs["team_id"]
-        team = get_object_or_404(Team, pk=team_id)
-        if self.request.user in team.members.all():
-            serializer.save(user=self.request.user, team=team)
-        else:
-            return Response({"error": "User not in team"}, status=403)
-
-
+# 할려고 했으나 잘 안됐음 웹소켓 문제 해결 못함
 # def team_chat(request, team_id):
 #     team = get_object_or_404(Team, pk=team_id)
 #     if request.user in team.members.all():
@@ -583,3 +770,179 @@ def delete_team(request):
             "팀을 삭제할 수 없습니다. 팀에 다른 멤버가 존재하거나 권한이 없습니다.",
         )
     return redirect("accounts:main")
+
+
+@login_required
+def board_list(request, team_id):
+    team = get_object_or_404(Team, pk=team_id)
+    if request.user not in team.members.all():
+        return redirect("team:team_dashboard", team_id=team_id)
+
+    all_contents = Teamboard.objects.filter(team=team).order_by("-createDate")
+    return render(
+        request,
+        "ourboard/board_list.html",
+        {"all_contents": all_contents, "team": team},
+    )
+
+
+# view : 게시글 등록
+@login_required
+def board_create(request, team_id):
+    team = get_object_or_404(Team, pk=team_id)
+    if request.user not in team.members.all():
+        return redirect("team:team_dashboard", team_id=team_id)
+
+    if request.method == "GET":
+        form = TeamBoardForm()
+        return render(
+            request, "ourboard/board_create.html", {"form": form, "team": team}
+        )
+
+    if request.method == "POST":
+        form = TeamBoardForm(request.POST, request.FILES)
+        if form.is_valid():
+            board = form.save(commit=False)
+            board.createUser = request.user
+            board.team = team  # 게시글이 속한 팀 설정
+            board.save()
+            return redirect("team:board_list", team_id=team_id)
+        else:
+            context = {"form": form, "team": team}
+            return render(request, "ourboard/board_create.html", context)
+
+
+# view : 게시글 상세보기 + 댓글조회 + 댓글등록
+def board_detail(request, team_id, pk):
+    team = get_object_or_404(Team, pk=team_id)
+    if request.user not in team.members.all():
+        return redirect("team:team_dashboard", team_id=team_id)
+
+    board = get_object_or_404(Teamboard, pk=pk, team=team)
+    comment_board = BoardCommentForm()
+    user_comment = board.comments.filter(commentUser=request.user).exists()
+
+    if request.method == "POST":
+        comment_form = BoardCommentForm(request.POST)
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.commentUser = request.user
+            comment.teamboard = board
+            comment.attendStatus = request.POST.get("attendStatus")
+            comment.save()
+            board.commentCnt += 1
+            board.save()
+            return redirect("team:board_detail", team_id=team_id, pk=board.pk)
+    elif request.method == "GET":
+        board.viewCnt += 1
+        board.save()
+
+    comments = board.comments.all()
+    return render(
+        request,
+        "ourboard/board_detail.html",
+        {
+            "board": board,
+            "comment_board": comment_board,
+            "comments": comments,
+            "user_comment": user_comment,
+            "team": team,
+        },
+    )
+
+
+# view : 게시글 수정
+@login_required
+def board_update(request, team_id, pk):
+    team = get_object_or_404(Team, pk=team_id)
+    if request.user not in team.members.all():
+        return redirect("team:team_dashboard", team_id=team_id)
+
+    board = get_object_or_404(Teamboard, pk=pk, team=team)
+    if board.createUser != request.user:
+        return redirect("team:board_list", team_id=team_id)
+
+    if request.method == "POST":
+        form = TeamBoardForm(request.POST, request.FILES, instance=board)
+        if form.is_valid():
+            update_board = form.save()
+            return redirect("team:board_detail", team_id=team_id, pk=update_board.pk)
+    else:
+        form = TeamBoardForm(instance=board)
+        context = {"form": form, "team": team, "pk": pk}
+        return render(request, "ourboard/board_update.html", context)
+
+
+# view : 게시글 삭제
+@login_required
+def board_delete(request, team_id, pk):
+    team = get_object_or_404(Team, pk=team_id)
+    if request.user not in team.members.all():
+        return redirect("team:team_dashboard", team_id=team_id)
+
+    board = get_object_or_404(Teamboard, pk=pk, team=team)
+    if board.createUser != request.user:
+        return redirect("team:board_list", team_id=team_id)
+
+    if request.method == "POST":
+        board.delete()
+    return redirect("team:board_list", team_id=team_id)
+
+
+# view : 게시글에 달린 댓글 삭제
+@login_required
+def board_comment_delete(request, team_id, pk):
+    comment = get_object_or_404(BoardComment, pk=pk)
+    teamboard_pk = comment.teamboard.pk  # 삭제 후 redirect할 때 사용할 teamboard의 pk
+    team = comment.teamboard.team  # 댓글이 속한 팀을 가져옴
+
+    # 현재 로그인한 사용자가 팀 멤버인지 확인
+    if request.user not in team.members.all():
+        return redirect("team:team_dashboard", team_id=team_id)
+
+    # 현재 로그인한 사용자가 댓글을 작성한 사용자와 동일한지 확인
+    if comment.commentUser != request.user:
+        return redirect("team:board_list", team_id=team_id)
+
+    if request.method == "POST":
+        comment.delete()
+        # 댓글이 삭제되었으므로 해당 게시글의 댓글 개수(commentCnt)를 1 감소시킴
+        comment.teamboard.commentCnt -= 1
+        comment.teamboard.save()
+        return redirect("team:board_detail", team_id=team_id, pk=teamboard_pk)
+
+    return render(
+        request,
+        "ourboard/board_comment_confirm_delete.html",
+        {"comment": comment, "team": team},
+    )
+
+
+@login_required
+def board_comment_update(request, team_id, pk):
+    comment = get_object_or_404(BoardComment, pk=pk)
+    team = comment.teamboard.team  # 댓글이 속한 팀을 가져옴
+
+    # 현재 로그인한 사용자가 팀 멤버인지 확인
+    if request.user not in team.members.all():
+        return redirect("team:team_dashboard", team_id=team_id)
+
+    # 현재 로그인한 사용자가 댓글을 작성한 사용자와 동일한지 확인
+    if comment.commentUser != request.user:
+        return redirect("team:board_list", team_id=team_id)
+
+    if request.method == "POST":
+        form = BoardCommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            return redirect(
+                "team:board_detail", team_id=team_id, pk=comment.teamboard.pk
+            )
+    else:
+        form = BoardCommentForm(instance=comment)
+
+    return render(
+        request,
+        "ourboard/comment_update.html",
+        {"form": form, "team": team, "comment": comment},
+    )

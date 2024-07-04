@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>댓글 수정</h2>
+    <form method="post" action="{% url 'team:board_comment_update' team_id=team.team_no pk=comment.pk %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">수정</button>
+        <a href="{% url 'team:board_detail' team_id=team.team_no pk=comment.teamboard.pk %}" class="btn btn-secondary">취소</a>
+    </form>
+</div>
+{% endblock %}

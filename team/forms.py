@@ -8,8 +8,8 @@ from django.core.files import File
 from django.core.files.base import ContentFile
 from django.db.models import Q
 
-from accounts.models import SiggAreas
-from .models import Team, Court, Match, MatchResult
+from accounts.models import SiggAreas, User
+from .models import Team, Court, Match, MatchResult, Teamboard, BoardComment
 
 
 class TeamForm(forms.ModelForm):
@@ -267,6 +267,8 @@ class MatchResultForm(forms.ModelForm):
     opponent = forms.ModelChoiceField(
         queryset=Team.objects.none(), required=True, label="상대팀"
     )
+    video_file_left = forms.FileField(required=False, label="왼쪽 비디오 파일")
+    video_file_right = forms.FileField(required=False, label="오른쪽 비디오 파일")
 
     class Meta:
         model = MatchResult
@@ -276,7 +278,8 @@ class MatchResultForm(forms.ModelForm):
             "result",
             "goals_for",
             "goals_against",
-            "video_file",
+            "video_file_left",
+            "video_file_right",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -307,6 +310,8 @@ class MatchResultEditForm(forms.ModelForm):
     opponent = forms.ModelChoiceField(
         queryset=Team.objects.none(), required=True, label="상대팀"
     )
+    video_file_left = forms.FileField(required=False, label="왼쪽 비디오 파일")
+    video_file_right = forms.FileField(required=False, label="오른쪽 비디오 파일")
 
     class Meta:
         model = MatchResult
@@ -316,7 +321,8 @@ class MatchResultEditForm(forms.ModelForm):
             "result",
             "goals_for",
             "goals_against",
-            "video_file",
+            "video_file_left",
+            "video_file_right",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -341,10 +347,67 @@ class MatchResultEditForm(forms.ModelForm):
             ).distinct()
 
 
+# 경기날짜 선택 폼
 class DateSelectForm(forms.Form):
-    date = forms.ChoiceField(choices=[], label="날짜 선택")
+    date = forms.ChoiceField(choices=[], required=True, label="날짜 선택")
 
     def __init__(self, *args, **kwargs):
         match_dates = kwargs.pop("match_dates", [])
         super().__init__(*args, **kwargs)
         self.fields["date"].choices = [(date, date) for date in match_dates]
+
+
+class MemberSelectForm(forms.Form):
+    members = forms.ModelMultipleChoiceField(
+        queryset=User.objects.none(),
+        required=True,
+        label="경기 뛴 멤버",
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+    def __init__(self, *args, **kwargs):
+        team_members = kwargs.pop("team_members", None)
+        super().__init__(*args, **kwargs)
+        if team_members:
+            self.fields["members"].queryset = team_members
+            self.fields["members"].label_from_instance = lambda obj: obj.username
+
+
+class TeamBoardForm(forms.ModelForm):
+    class Meta:
+        model = Teamboard
+        fields = ["boardTitle", "boardContent", "boardImg"]
+
+    def __init__(self, *args, **kwargs):
+        super(TeamBoardForm, self).__init__(*args, **kwargs)
+        self.fields["boardImg"].required = False  # 이미지 필드를 선택 사항으로 설정
+
+    def clean_team_image_url(self):
+        boardImg: File = self.cleaned_data.get("boardImg")
+        if boardImg:
+            img = Image.open(boardImg)
+            MAX_SIZE = (512, 512)
+            img.thumbnail(MAX_SIZE)
+            img = img.convert("RGB")
+
+            thumb_name = os.path.splitext(boardImg.name)[0] + ".jpg"
+
+            thumb_file = ContentFile(b"", name=thumb_name)
+            img.save(thumb_file, format="jpeg")
+
+            return thumb_file
+
+        return boardImg
+
+
+# 게시글에 대한 댓글 등록폼 : models.py > BoardComment에서 사용자로부터 받을 필드만 별도 추출 및 저장
+# 선택 항목으로, 라디오 버튼을 통해 "참석", "불참석", "보류" 중 하나를 선택
+class BoardCommentForm(forms.ModelForm):
+    ATTEND_CHOICES = [(0, "참석"), (1, "불참석"), (2, "보류")]
+    attendStatus = forms.ChoiceField(
+        choices=ATTEND_CHOICES, widget=forms.RadioSelect, label="참석 여부"
+    )
+
+    class Meta:
+        model = BoardComment
+        fields = ["commentMsg", "attendStatus"]

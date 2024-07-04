@@ -30,11 +30,19 @@
                     <label for="id_goals_against" class="form-label">실점:</label>
                     {{ form.goals_against }}
                 </div>
+                 <div class="mb-3">
+                    <label for="id_video_file_left" class="form-label">왼쪽 비디오 파일:</label>
+                    {{ form.video_file_left }}
+                </div>
                 <div class="mb-3">
-                    <label for="id_video_file" class="form-label">비디오 파일:</label>
-                    {{ form.video_file }}
+                    <label for="id_video_file_right" class="form-label">오른쪽 비디오 파일:</label>
+                    {{ form.video_file_right }}
                 </div>
                 <button type="submit" class="btn btn-primary">저장</button>
+            </form>
+            <form method="post" class="mt-3">
+                {% csrf_token %}
+                <button type="submit" name="delete" class="btn btn-danger">경기 리포트 삭제</button>
             </form>
         </div>
     </div>

@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
-from .views import MessageListCreateAPIView
+
+# from .views import MessageListCreateAPIView
 
 app_name = "team"
 urlpatterns = [
@@ -36,12 +37,43 @@ urlpatterns = [
     path("match_schedule/", views.match_schedule, name="match_schedule"),
     path("team_story/", views.team_story, name="team_story"),
     # path("chat/<int:team_id>/", views.team_chat, name="team_chat"),
-    path(
-        "api/messages/<int:team_id>/",
-        MessageListCreateAPIView.as_view(),
-        name="message-list-create",
-    ),
-    path("video_analysis/<int:team_id>", views.video_analysis, name="video_analysis"),
+    # path(
+    #     "api/messages/<int:team_id>/",
+    #     MessageListCreateAPIView.as_view(),
+    #     name="message-list-create",
+    # ),
+    path("video_analysis/<int:team_id>/", views.video_analysis, name="video_analysis"),
+    # 영상분석 시작 버튼
+    # path(
+    #     "analyze_video/<int:match_id>/",
+    #     views.analyze_video,
+    #     name="analyze_video",
+    # ),
     path("leave_team/", views.leave_team, name="leave_team"),
     path("delete_team/", views.delete_team, name="delete_team"),
+    # 게시판 리스트 url
+    path("board/<int:team_id>/", views.board_list, name="board_list"),
+    path("board/<int:team_id>/create/", views.board_create, name="board_create"),
+    path("board/<int:team_id>/<int:pk>/", views.board_detail, name="board_detail"),
+    path(
+        "board/<int:team_id>/<int:pk>/update/", views.board_update, name="board_update"
+    ),
+    path(
+        "board/<int:team_id>/<int:pk>/delete/", views.board_delete, name="board_delete"
+    ),
+    path(
+        "board/<int:team_id>/<int:pk>/comment_delete/",
+        views.board_comment_delete,
+        name="board_comment_delete",
+    ),
+    path(
+        "board/<int:team_id>/<int:pk>/comment_update/",
+        views.board_comment_update,
+        name="board_comment_update",
+    ),
+    # path(
+    #     "video_analysis/<int:team_id>/result/",
+    #     views.analysis_result_basic,
+    #     name="analysis_result_basic",
+    # ),
 ]

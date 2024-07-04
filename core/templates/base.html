@@ -173,6 +173,7 @@
             color: snow; /* 글씨 색상을 흰색으로 유지합니다 */
         }
 
+
     </style>
     {% component_css_dependencies %}
 </head>
@@ -226,7 +227,7 @@
                         <a href="{% url 'team:myteam' %}">My Team</a>
                     </div>
                 </li>
-                <li class="nav-item navbar-item"><a href="#" class="nav-link">Chatbot</a></li>
+                <li class="nav-item navbar-item"><a href="{% url 'chatbot:chatbot' %}" class="nav-link">Chatbot</a></li>
             </ul>
         </header>
          {% block banner %}{% endblock %}

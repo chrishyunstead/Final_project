@@ -1,38 +1,298 @@
+{#<!DOCTYPE html>#}
+{#<html>#}
+{#<head>#}
+{#    <title>Chatbot</title>#}
+{#</head>#}
+{#<body>#}
+{#    <h1>Chatbot</h1>#}
+{#    <form method="post">#}
+{#        {% csrf_token %}#}
+{#        <textarea name="message" rows="4" cols="50"></textarea><br>#}
+{#        <input type="submit" value="Send">#}
+{#    </form>#}
+{#    <div id="response"></div>#}
+{#</body>#}
+{#</html>#}
+
+{#인풋:스트링형식#}
+            {#답변은 json형식#}
+            {#답변은 마지막에 있고 마지막것만 잘라서 응답하는 형식으로#}
+            {#response.json()['response'].split('\nAnswer')[-1][1:]#}
+
+
+
+{#<!DOCTYPE html>#}
+{#<html>#}
+{#<head>#}
+{#    <title>Chatbot</title>#}
+{#    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">#}
+{#    {% load static %}#}
+{#    <!-- Google Fonts 링크 추가 -->#}
+{#    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">#}
+{#    <style>#}
+{#        body {#}
+{#            background-color: #f8f9fa;#}
+{#            position: relative;#}
+{#            font-family: 'Noto Sans KR', sans-serif;#}
+{#        }#}
+{#        .chat-container {#}
+{#            max-width: 800px;#}
+{#            margin: 50px auto;#}
+{#            background: rgba(255, 255, 255, 0.8); /* 투명도 적용 */#}
+{#            padding: 20px;#}
+{#            border-radius: 10px;#}
+{#            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);#}
+{#            position: relative;#}
+{#            z-index: 1;#}
+{#        }#}
+{#        .chat-box {#}
+{#            height: 500px;#}
+{#            overflow-y: auto;#}
+{#            padding: 10px;#}
+{#            border: 1px solid #dee2e6;#}
+{#            border-radius: 5px;#}
+{#            margin-bottom: 20px;#}
+{#            background-color: rgba(248, 249, 250, 0.8); /* 투명도 적용 */#}
+{#            position: relative;#}
+{#        }#}
+{#        .background-image {#}
+{#            position: absolute;#}
+{#            top: 0;#}
+{#            left: 0;#}
+{#            width: 100%;#}
+{#            height: 100%;#}
+{#            opacity: 0.5; /* 투명도 조절 */#}
+{#            z-index: 0;#}
+{#        }#}
+{#        .message {#}
+{#            margin-bottom: 10px;#}
+{#            position: relative;#}
+{#            z-index: 1;#}
+{#        }#}
+{#        .message.user {#}
+{#            text-align: right;#}
+{#        }#}
+{#        .message .content {#}
+{#            display: inline-block;#}
+{#            padding: 10px;#}
+{#            border-radius: 10px;#}
+{#        }#}
+{#        .message.user .content {#}
+{#            background-color: #007bff;#}
+{#            color: #ffffff;#}
+{#        }#}
+{#        .message.bot .content {#}
+{#            background-color: #e9ecef;#}
+{#            color: #000000;#}
+{#        }#}
+{#        .chat-title {#}
+{#            font-family: 'Comic Neue', cursive; /* 귀여운 글꼴 적용 */#}
+{#        }#}
+{#    </style>#}
+{#</head>#}
+{#<body>#}
+{##}
+{#<div class="container chat-container">#}
+{#    <h2 class="text-center chat-title">FOOTFOOT Chatbot</h2>#}
+{#    <div class="chat-box" id="response">#}
+{#        <img src="{% static 'images/FutFut.png' %}" alt="Background Image" class="background-image">#}
+{#        <div class="message bot">#}
+{#            <div class="content">풋살에 관한건 무엇이든 물어보세요! 풋풋~~</div>#}
+{#        </div>#}
+{#        <!-- 메시지가 여기에 추가됩니다 -->#}
+{#    </div>#}
+{#    <form id="chat-form" method="post">#}
+{#        {% csrf_token %}#}
+{#        <div class="input-group">#}
+{#            <textarea name="message" id="message-input" rows="4" class="form-control" placeholder="Type your message..."></textarea>#}
+{#            <div class="input-group-append">#}
+{#                <button type="submit" class="btn btn-primary chat-title">Send</button>#}
+{#            </div>#}
+{#        </div>#}
+{#    </form>#}
+{#</div>#}
+{##}
+{#<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>#}
+{#<script>#}
+{#    $(document).ready(function() {#}
+{#        $('#chat-form').on('submit', function(event) {#}
+{#            event.preventDefault();#}
+{#            let message = $('#message-input').val();#}
+{#            if (message.trim() !== '') {#}
+{#                appendMessage('user', message);#}
+{#                $('#message-input').val('');#}
+{##}
+{#                $.ajax({#}
+{#                    url: '{% url "chatbot:chat_view" %}',#}
+{#                    method: 'POST',#}
+{#                    data: {#}
+{#                        'message': message,#}
+{#                        'csrfmiddlewaretoken': '{{ csrf_token }}'#}
+{#                    },#}
+{#                    success: function(response) {#}
+{#                        if (response.response) {#}
+{#                            appendMessage('bot', response.response);#}
+{#                        } else {#}
+{#                            appendMessage('bot', '응답이 없습니다.');#}
+{#                        }#}
+{#                    },#}
+{#                    error: function(xhr, status, error) {#}
+{#                        appendMessage('bot', 'Error: ' + xhr.status + ' ' + xhr.statusText);#}
+{#                    }#}
+{#                });#}
+{#            }#}
+{#        });#}
+{##}
+{#        function appendMessage(sender, message) {#}
+{#            let messageElement = '<div class="message ' + sender + '"><div class="content">' + message + '</div></div>';#}
+{#            $('#response').append(messageElement);#}
+{#            $('#response').scrollTop($('#response')[0].scrollHeight);#}
+{#        }#}
+{#    });#}
+{#</script>#}
+{##}
+{#</body>#}
+{#</html>#}
+
 <!DOCTYPE html>
 <html>
 <head>
     <title>Chatbot</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    {% load static %}
+    <!-- Google Fonts 링크 추가 -->
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            position: relative;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .chat-container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: rgba(255, 255, 255, 0.8); /* 투명도 적용 */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+        .chat-box {
+            height: 500px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            background-color: rgba(248, 249, 250, 0.8); /* 투명도 적용 */
+            position: relative;
+        }
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.5; /* 투명도 조절 */
+            z-index: 0;
+        }
+        .message {
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        .message.user {
+            text-align: right;
+        }
+        .message .content {
+            display: inline-block;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .message.user .content {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+        .message.bot .content {
+            background-color: #e9ecef;
+            color: #000000;
+        }
+        .chat-title {
+            font-family: 'Comic Neue', cursive; /* 귀여운 글꼴 적용 */
+        }
+
+        .send-button {
+            background: none;
+            border: none;
+            padding: 0;
+        }
+        .send-button img {
+            height: 40px; /* 이미지 크기 조절 */
+        }
+
+        .footer-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .footer-buttons .btn {
+            height: 40px
+        }
+
+    </style>
 </head>
 <body>
-    <h1>Chatbot</h1>
-    <form id="chatbot-form">
+
+<div class="container chat-container">
+    <h2 class="text-center chat-title">FOOTFOOT Chatbot</h2>
+    <div class="chat-box" id="response">
+        <img src="{% static 'images/FutFut.png' %}" alt="Background Image" class="background-image">
+        <div class="message bot">
+            <div class="content">풋살에 관한건 무엇이든 물어보세요! 풋풋~~</div>
+        </div>
+{#        {% if message %}#}
+{#            <div class="message user">#}
+{#                <div class="content">{{ message }}</div>#}
+{#            </div>#}
+{#        {% endif %}#}
+{#        {% if response %}#}
+{#            {% if response.error %}#}
+{#                <div class="message bot">#}
+{#                    <div class="content">Error: {{ response.error }}</div>#}
+{#                </div>#}
+{#            {% else %}#}
+{#                <div class="message bot">#}
+{#                    <div class="content">{{ response.response }}</div>#}
+{#                </div>#}
+{#            {% endif %}#}
+{#        {% endif %}#}
+        {% for chat in chat_history %}
+            <div class="message user">
+                <div class="content">{{ chat.question }}</div>
+            </div>
+            <div class="message bot">
+                <div class="content">{{ chat.answer }}</div>
+            </div>
+        {% endfor %}
+    </div>
+    <form method="post">
         {% csrf_token %}
-        <label for="input_text">You:</label>
-        <input type="text" id="input_text" name="input_text" required>
-        <button type="submit">Send</button>
+        <div class="input-group">
+            <textarea name="message" rows="4" class="form-control" placeholder="Type your message..."></textarea>
+            <div class="input-group-append">
+                <button type="submit" class="send-button">
+                    <img src="{% static 'images/soccer_ball.png' %}" alt="Send">
+                </button>
+            </div>
+        </div>
     </form>
-    <h2>Response:</h2>
-    <p id="response"></p>
-
-    <script>
-        document.getElementById('chatbot-form').onsubmit = async function(event) {
-            event.preventDefault();
-            const inputText = document.getElementById('input_text').value;
-            const responseElement = document.getElementById('response');
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-            const response = await fetch('/chatbot/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                body: JSON.stringify({input_text: inputText})
-            });
-
-            const data = await response.json();
-            responseElement.textContent = data.response;
-        };
-    </script>
+    <div class="footer-buttons">
+        <form method="get">
+            <button type="submit" name="reset" value="1" class="btn btn-danger mt-3">대화 기록 초기화</button>
+        </form>
+        <a href='{% url "accounts:main" %}' class="btn btn-primary">홈페이지</a>
+    </div>
+</div>
 </body>
 </html>

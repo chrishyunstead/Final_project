@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>게시글 작성</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_boardTitle">BoardTitle:</label>
+            <input type="text" name="boardTitle" maxlength="50" required id="id_boardTitle" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="id_boardContent">BoardContent:</label>
+            <textarea name="boardContent" cols="40" rows="10" required id="id_boardContent" class="form-control"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="id_boardImg">BoardImg:</label>
+            <input type="file" name="boardImg" id="id_boardImg" class="form-control-file">
+        </div>
+        <button type="submit" class="btn btn-primary">작성</button>
+        <a href="{% url 'team:board_list' team_id=team.team_no %}" class="btn btn-secondary">취소</a>
+    </form>
+</div>
+
+<style>
+    .form-group label {
+        font-weight: bold;
+    }
+    #id_boardContent {
+        width: 100%;
+    }
+</style>
+{% endblock %}

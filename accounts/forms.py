@@ -251,10 +251,15 @@ class EditProfileForm(forms.ModelForm):
         return avatar_file
 
 
+# AuthenticationForm == 사용자 인증 처리하는 기본 폼
 class LoginForm(AuthenticationForm):
+    # FormHelper는 django-crispy-forms에서 폼의 렌더링과 스타일을 정의
     helper = FormHelper()
+    # {"novalidate": True}로 설정하여 브라우저의 기본 HTML5 폼 검증을 비활성화
     helper.attrs = {"novalidate": True}
+    # 폼 필드의 레이아웃을 정의
     helper.layout = Layout("username", "password")
+    # 버튼의 텍스트를 "로그인"으로 설정하며, CSS 클래스 w-100을 추가하여 버튼이 100% 너비
     helper.add_input(Submit("submit", "로그인", css_class="w-100"))
 
 

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>분석 결과</h2>
+    <img src="{{ result_image }}" alt="분석 결과 이미지" class="img-fluid">
+    <a href="{% url 'team:video_analysis' match_result.team.team_no %}" class="btn btn-secondary mt-3">다시 분석하기</a>
+</div>
+{% endblock %}

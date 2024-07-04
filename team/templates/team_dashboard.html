@@ -16,7 +16,7 @@
             {% else %}
                 <span class="btn btn-primary me-2 disabled">경기 리포트 수정</span>
             {% endif %}
-            <a href="{% url 'team:team_chat' team.team_no %}" class="btn btn-primary me-2">팀 채팅</a>
+            <a href="{% url 'team:board_list' team.team_no %}" class="btn btn-primary me-2">팀 게시판</a>
             <a href="{% url 'team:video_analysis' team.team_no %}" class="btn btn-primary me-2">영상 분석</a>
             <a href="{% url 'team:match_schedule' %}" class="btn btn-secondary">나의 팀 경기일정</a>
         </div>
