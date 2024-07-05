@@ -1,8 +1,8 @@
 import pickle
 import matplotlib.pyplot as plt
-from team_heatmap import teamHeatmap
+from video_analysis.team_heatmap import TeamHeatmap
 from passmap import PassMap
-from hasball_report import possessionReport
+from video_analysis.hasball_report import PossessionReport
 from stats_gen import statGenerator
 
 
@@ -11,7 +11,7 @@ def main(track_stub_path):
         tracks = pickle.load(load1)
     match_id = "testMatch"
     base_pitch_path = "test/img/nuri_futsal.png"
-    heatmap_path_list = teamHeatmap().gen_team_heatmap(
+    heatmap_path_list = TeamHeatmap().gen_team_heatmap(
         tracks, base_pitch_path, match_id, "viz/heatmap_team"
     )
 
@@ -21,7 +21,7 @@ def main(track_stub_path):
     passmap.create_passmap_data(match_id, "df/passmap")
     passmap_path_list = passmap.passmap_plot("viz/passmap", match_id)
 
-    hasball_report = possessionReport(
+    hasball_report = PossessionReport(
         "df/heatmap/testMatch-heatmap-df.csv", base_pitch_path
     )
     possession_lmr_path_list = hasball_report.visual_possession(

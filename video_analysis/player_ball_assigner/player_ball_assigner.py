@@ -1,5 +1,6 @@
 import sys
-from utils import *
+
+from video_analysis.utils import *
 
 
 class BallAssigner:

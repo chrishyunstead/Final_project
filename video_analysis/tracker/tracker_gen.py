@@ -1,11 +1,10 @@
 from ultralytics import YOLO
 import supervision as sv
 import pickle
-import json
 import os
 import pandas as pd
 import torch
-from utils import *
+from video_analysis.utils import *
 
 
 class Tracker:

@@ -1,26 +1,26 @@
 import os
 import pickle
-from team_heatmap import TeamHeatmap
-from hasball_report import PossessionReport
+from .team_heatmap import TeamHeatmap
+from .hasball_report import PossessionReport
 
 
 def basic_gen(track_stub_path):
     with open(track_stub_path, "rb") as load1:
         tracks = pickle.load(load1)
     match_id = "testMatch"
-    base_pitch_path = "adios_video/test/img/nuri_futsal.png"
+    base_pitch_path = "test/img/nuri_futsal.png"
     heatmap_path_list = TeamHeatmap().gen_team_heatmap(
-        tracks, base_pitch_path, match_id, "adios_video/viz/heatmap_team"
+        tracks, base_pitch_path, match_id, "viz/heatmap_team"
     )
 
     hasball_report = PossessionReport(
-        "adios_video/df/heatmap/testMatch-heatmap-df.csv", base_pitch_path
+        "df/heatmap/testMatch-heatmap-df.csv", base_pitch_path
     )
     possession_lmr_path_list = hasball_report.visual_possession(
-        match_id, "adios_video/viz/possession"
+        match_id, "viz/possession"
     )
     possession_dmr_path_list = hasball_report.visual_activate_zone(
-        match_id, "adios_video/viz/possession"
+        match_id, "viz/possession"
     )
     path_dict = {
         "heatmap_home": heatmap_path_list[0],
