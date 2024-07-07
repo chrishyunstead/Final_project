@@ -18,8 +18,6 @@ urlpatterns = [
     ),
     # 팀 가입하기 누르면 팀들 나오고 가입하기까지
     path("team_list/", views.team_list, name="team_list"),
-    # 마이 팀페이지
-    # path("team_dashboard/<int:team_id>/", views.team_dashboard, name="team_dashboard"),
     path("join_team/<int:team_id>/", views.join_team, name="join_team"),
     path("matches/", views.match_list, name="match_list"),
     path("matches/create/", views.create_match, name="create_match"),

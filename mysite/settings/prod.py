@@ -1,11 +1,7 @@
 from .base import *
 
 DEBUG = False
-<<<<<<< HEAD
 ALLOWED_HOSTS = ["43.200.89.250"]
-=======
-ALLOWED_HOSTS = ["13.209.235.183"]
->>>>>>> cb3a0b7fdb47fe48e69e74d83fb257c5f5824086
 
 DATABASES = DATABASE
 STATIC_ROOT = BASE_DIR / "staticfiles"

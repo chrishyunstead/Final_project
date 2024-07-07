@@ -4,6 +4,7 @@ from django.contrib.auth.models import Group
 
 
 class Court(models.Model):
+    # 경기장 정보
     court_no = models.PositiveSmallIntegerField(primary_key=True)
     court_name = models.CharField(max_length=50)
     court_address = models.CharField(max_length=100)
@@ -33,6 +34,8 @@ class Court(models.Model):
     number_11vs11 = models.TextField(
         db_column="11vs11"
     )  # Field renamed because it wasn't a valid Python identifier. This field type is a guess.
+
+    # 기타 시설 정보
     cool_heating = models.TextField()  # This field type is a guess.
     cooling = models.TextField()  # This field type is a guess.
     team_vest = models.TextField()  # This field type is a guess.
@@ -54,6 +57,8 @@ class Team(models.Model):
     team_day = models.CharField(max_length=15)
     team_timeslot = models.CharField(max_length=10)
     team_ages = models.CharField(max_length=10)
+
+    # 팀 성별 선택
     GENDER_CHOICES = [
         ("여성", "여성"),
         ("남성", "남성"),
@@ -64,6 +69,8 @@ class Team(models.Model):
     )
     team_level = models.IntegerField(null=True, blank=True)
     create_date = models.DateTimeField(auto_now_add=True)
+
+    # 팀 멤버
     members = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name="teams", blank=True
     )
@@ -74,6 +81,8 @@ class Team(models.Model):
     sido_name = models.CharField(max_length=10)
     sigg_name = models.CharField(max_length=10)
     court_name = models.CharField(max_length=50)
+
+    # 경기 기록
     match_count = models.PositiveIntegerField(default=0)
     win_count = models.PositiveIntegerField(default=0)
     draw_count = models.PositiveIntegerField(default=0)
@@ -133,6 +142,8 @@ class Match(models.Model):
     sido_name = models.CharField(max_length=10)
     sigg_name = models.CharField(max_length=10)
     court_name = models.CharField(max_length=50)
+
+    # 매치 성별 선택
     GENDER_CHOICES = [
         ("여성", "여성"),
         ("남성", "남성"),
@@ -157,6 +168,7 @@ class Match(models.Model):
         return False
 
 
+# 경기 결과
 class MatchResult(models.Model):
     team = models.ForeignKey(
         "team.Team",
@@ -187,10 +199,13 @@ class MatchResult(models.Model):
     video_file_right = models.FileField(
         upload_to="analysis/files/%Y/%m/%d/right/", null=True, blank=True
     )
+
+    # 경기 리포트 작성한 사람
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, related_name="match_results", on_delete=models.CASCADE
     )
 
+    # 경기 참여한 멤버들
     players = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name="match_results_players", blank=True
     )
@@ -222,6 +237,7 @@ class MatchResult(models.Model):
         # Create or update the opponent's MatchResult
 
 
+# 팀 순위 갱신
 def update_team_ranking(team):
     team_results = team.results.all()
     match_count = team_results.count()
@@ -240,6 +256,7 @@ def update_team_ranking(team):
     team.save()
 
 
+# 상대팀 순위 갱신
 def update_opponent_ranking(match_result):
     opponent_results = MatchResult.objects.filter(team=match_result.opponent)
     match_count = opponent_results.count()
@@ -266,9 +283,7 @@ class Teamboard(models.Model):
         "team.Team", on_delete=models.CASCADE, related_name="boards"
     )
     # User 기본 테이블에 사용자가 지워지면 Post 데이터도 지워짐. 1(User):N(Teamboard)관계
-    createUser = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE
-    )  # 등록자
+    createUser = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     boardTitle = models.CharField(max_length=50)  # 게시글 제목
     boardContent = models.TextField()  # 게시글 내용
     boardImg = models.ImageField(blank=True, null=True)  # 첨부파일

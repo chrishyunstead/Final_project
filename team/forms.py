@@ -12,6 +12,7 @@ from accounts.models import SiggAreas, User
 from .models import Team, Court, Match, MatchResult, Teamboard, BoardComment
 
 
+# 팀 생성하기 폼
 class TeamForm(forms.ModelForm):
     DAYS_OF_WEEK = [
         ("월", "월"),
@@ -184,6 +185,7 @@ class TeamForm(forms.ModelForm):
         return team_image_url
 
 
+# 매치 생성 폼
 class MatchForm(forms.ModelForm):
     date = forms.DateField(
         label="경기 날짜",
@@ -262,6 +264,7 @@ class MatchForm(forms.ModelForm):
         }
 
 
+# 경기 리포트 작성 폼
 class MatchResultForm(forms.ModelForm):
     date = forms.ChoiceField(choices=[], required=True, label="경기 날짜")
     opponent = forms.ModelChoiceField(
@@ -305,6 +308,7 @@ class MatchResultForm(forms.ModelForm):
             ).distinct()
 
 
+# 경기 리포트 수정
 class MatchResultEditForm(forms.ModelForm):
     date = forms.ChoiceField(choices=[], required=True, label="경기 날짜")
     opponent = forms.ModelChoiceField(
@@ -357,6 +361,7 @@ class DateSelectForm(forms.Form):
         self.fields["date"].choices = [(date, date) for date in match_dates]
 
 
+# 경기 뛴 멤버 선택
 class MemberSelectForm(forms.Form):
     members = forms.ModelMultipleChoiceField(
         queryset=User.objects.none(),
@@ -373,6 +378,7 @@ class MemberSelectForm(forms.Form):
             self.fields["members"].label_from_instance = lambda obj: obj.username
 
 
+# 팀 게시판
 class TeamBoardForm(forms.ModelForm):
     class Meta:
         model = Teamboard

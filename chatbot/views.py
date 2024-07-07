@@ -132,13 +132,13 @@ def chatbot(request):
     if request.method == "POST":
         message = request.POST.get(
             "message"
-        )  # 사용자의 질문을 받아옵니다.(질문형태 str일 경우)
+        )  # 사용자의 질문 받기.(질문형태 str일 경우)
 
         try:
             response = requests.post(
                 "http://43.200.89.250:8080/query", json={"query": message}
-            )  # FastAPI 서버에 JSON 형태로 질문을 전송합니다.
-            response_data = response.json()  # JSON 응답을 파싱합니다.
+            )  # FastAPI 서버에 JSON 형태로 질문 전송
+            response_data = response.json()  # JSON 응답 파싱
 
             # 응답에서 "Answer:" 부분만 추출
             if "response" in response_data:
@@ -156,22 +156,18 @@ def chatbot(request):
             request.session.modified = True
 
         except requests.exceptions.RequestException as e:
-            response_data = {
-                "error": str(e)
-            }  # 요청이 실패한 경우 에러 메시지를 반환합니다.
+            response_data = {"error": str(e)}  # 요청이 실패한 경우 에러 메시지 반환
 
     # 세션 데이터를 초기화하는 로직 추가
     elif request.method == "GET" and "reset" in request.GET:
         request.session["chat_history"] = []
-        return redirect(
-            "chatbot:chatbot"
-        )  # 채팅 페이지로 리다이렉트하여 초기화된 상태를 보여줍니다.
+        return redirect("chatbot:chatbot")  # 채팅 페이지로 리다이렉트하여 초기화
 
     return render(
         request,
         "chatbot.html",
         {"response": response_data, "message": message, "chat_history": chat_history},
-    )  # GET 또는 POST 요청인 경우, 챗봇 폼을 렌더링하고 응답을 전달합니다.
+    )  # GET 또는 POST 요청인 경우, 챗봇 폼 렌더링 후 응답을 전달
 
 
 # import requests
