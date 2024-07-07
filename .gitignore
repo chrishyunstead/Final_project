@@ -15,8 +15,8 @@ my_settings.py
 *.pot
 *.pyc
 __pycache__/
-media/*
-!media/.keep
+#media/*
+#!media/.keep
 
 
 # If your build process includes running tests, coverage reports will go here
