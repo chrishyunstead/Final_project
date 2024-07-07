@@ -3,7 +3,6 @@ import pickle
 from .tracker import Tracker
 from .team_assigner import TeamAssigner
 from .player_ball_assigner import BallAssigner
-import cv2
 from .perspective_changer import PerspectiveChanger
 from .video_2_frames import Video2frames
 

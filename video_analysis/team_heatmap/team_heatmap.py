@@ -43,9 +43,9 @@ class TeamHeatmap:
                 player_data.append(row)
 
         player_data = pd.DataFrame(player_data)
-        with open(f"../track-stub/{match_id}-track-stub.pkl", "wb") as save:
+        with open(f"adios_video/track-stub/{match_id}-track-stub.pkl", "wb") as save:
             pickle.dump(tracks, save)
-        player_data.to_csv(f"../df/heatmap/{match_id}-heatmap-df.csv")
+        player_data.to_csv(f"adios_video/df/heatmap/{match_id}-heatmap-df.csv")
         return player_data
 
     # 히트맵 생성 함수
