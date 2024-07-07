@@ -53,7 +53,9 @@ class Court(models.Model):
 class Team(models.Model):
     team_no = models.AutoField(primary_key=True)
     team_name = models.CharField(unique=True, max_length=10)
-    team_image_url = models.ImageField(blank=True, null=True)
+    team_image_url = models.ImageField(
+        upload_to="teams/images/%Y/%m/%d/", blank=True, null=True
+    )
     team_day = models.CharField(max_length=15)
     team_timeslot = models.CharField(max_length=10)
     team_ages = models.CharField(max_length=10)
@@ -286,7 +288,9 @@ class Teamboard(models.Model):
     createUser = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     boardTitle = models.CharField(max_length=50)  # 게시글 제목
     boardContent = models.TextField()  # 게시글 내용
-    boardImg = models.ImageField(blank=True, null=True)  # 첨부파일
+    boardImg = models.ImageField(
+        upload_to="board/images/%Y/%m/%d/", blank=True, null=True
+    )  # 첨부파일
     createDate = models.DateTimeField(auto_now_add=True)  # 등록일
     updateDate = models.DateField(auto_now=True)  # 수정일
     viewCnt = models.IntegerField(default=0)  # 조회수

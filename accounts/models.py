@@ -61,7 +61,9 @@ class User(AbstractUser):
     level = models.IntegerField(null=True, blank=True)
     introduction = models.CharField(max_length=55, blank=True, null=True)
     join_date = models.DateTimeField(auto_now_add=True)
-    image_url = models.ImageField(blank=True, null=True)
+    image_url = models.ImageField(
+        upload_to="user/images/%Y/%m/%d/", blank=True, null=True
+    )
     team_no = models.ForeignKey(
         "team.Team",
         on_delete=models.SET_NULL,
