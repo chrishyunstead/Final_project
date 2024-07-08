@@ -63,14 +63,16 @@ def basic_gen(track_stub_path):
         match_id, os.path.join(base_dir, "viz/possession")
     )
     path_dict = {
-        "heatmap_home": heatmap_path_list[0],
-        "heatmap_away": heatmap_path_list[1],
-        "hasball_lmr_home": possession_lmr_path_list[0],
-        "hasball_lmr_away": possession_lmr_path_list[1],
-        "hasball_dmr": possession_dmr_path_list[0],
+        "heatmap_home": os.path.join("viz", "heatmap_team", heatmap_path_list[0]),
+        "heatmap_away": os.path.join("viz", "heatmap_team", heatmap_path_list[1]),
+        "hasball_lmr_home": os.path.join(
+            "viz", "possession", possession_lmr_path_list[0]
+        ),
+        "hasball_lmr_away": os.path.join(
+            "viz", "possession", possession_lmr_path_list[1]
+        ),
+        "hasball_dmr": os.path.join("viz", "possession", possession_dmr_path_list[0]),
     }
-    for key, value in path_dict.items():
-        path_dict[key] = os.path.join("viz", value)
 
     return path_dict
 
