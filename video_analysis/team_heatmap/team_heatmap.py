@@ -156,9 +156,7 @@ class TeamHeatmap:
 
         player_data = pd.DataFrame(player_data)
         with open(
-            os.path.join(
-                self.base_dir, f"../track_stub/{match_id}_track_stub.pkl"
-            ),
+            os.path.join(self.base_dir, f"../track_stub/{match_id}_track_stub.pkl"),
             "wb",
         ) as save:
             pickle.dump(tracks, save)
