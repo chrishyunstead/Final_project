@@ -563,8 +563,10 @@ def video_analysis(request, team_id):
                 stub_path = tracking(left_video_path, right_video_path)
                 viz_path_dict = basic_gen(stub_path)
                 # 저장된 이미지 파일 경로를 미디어 URL로 변환
-                for key, value in viz_path_dict.items():
-                    viz_path_dict[key] = os.path.join(settings.MEDIA_URL, value)
+                # for key, value in viz_path_dict.items():
+                #     viz_path_dict[key] = os.path.join(settings.MEDIA_URL, value)
+        else:
+            form = DateSelectForm(match_dates=match_dates)
     else:
         form = DateSelectForm(match_dates=match_dates)
 
