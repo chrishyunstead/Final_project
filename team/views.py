@@ -564,8 +564,8 @@ def video_analysis(request, team_id):
                 stub_path = tracking(left_video_path, right_video_path)
                 viz_path_dict = basic_gen(stub_path)
                 # 저장된 이미지 파일 경로를 미디어 URL로 변환 x
-                for key, value in viz_path_dict.items():
-                    viz_path_dict[key] = os.path.join(settings.MEDIA_URL, value)
+                # for key, value in viz_path_dict.items():
+                #     viz_path_dict[key] = os.path.join(settings.MEDIA_URL, value)
         else:
             form = DateSelectForm(match_dates=match_dates)
     else:
@@ -584,14 +584,14 @@ def video_analysis(request, team_id):
     )
 
 
-### viz_path_dict 이미지 경로 전달
-# def serve_image(request, path):
-#     file_path = os.path.join(settings.BASE_DIR, "video_analysis", "viz", path)
-#     if os.path.exists(file_path):
-#         with open(file_path, "rb") as f:
-#             return HttpResponse(f.read(), content_type="image/png")
-#     else:
-#         raise Http404("File not found")
+## viz_path_dict 이미지 경로 전달
+def serve_image(request, path):
+    file_path = os.path.join(settings.BASE_DIR, "video_analysis", "viz", path)
+    if os.path.exists(file_path):
+        with open(file_path, "rb") as f:
+            return HttpResponse(f.read(), content_type="image/png")
+    else:
+        raise Http404("File not found")
 
 
 # 상대팀 순위 업데이트 함수
