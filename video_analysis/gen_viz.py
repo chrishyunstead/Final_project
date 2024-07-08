@@ -104,10 +104,14 @@ def basic_gen(track_stub_path):
     )
     path_dict = {
         "heatmap_home": os.path.join(
-            "viz/heatmap_team", os.path.basename(heatmap_path_list[0])
+            # "viz/heatmap_team", os.path.basename(heatmap_path_list[0])
+            "viz/heatmap_team",
+            os.path.basename(heatmap_path_list[0]),
         ),
         "heatmap_away": os.path.join(
-            "viz/heatmap_team", os.path.basename(heatmap_path_list[1])
+            # "viz/heatmap_team", os.path.basename(heatmap_path_list[1])
+            "viz/heatmap_team",
+            os.path.basename(heatmap_path_list[1]),
         ),
         "hasball_lmr_home": os.path.join(
             "viz/possession", os.path.basename(possession_lmr_path_list[0])
