@@ -74,6 +74,6 @@ urlpatterns = [
     #     views.analysis_result_basic,
     #     name="analysis_result_basic",
     # ),
-    # path("viz/<path:path>", views.serve_image, name="serve_image"),
-    path("<path:path>", views.serve_image, name="serve_image"),
+    path("viz/<path:path>", views.serve_image, name="serve_image"),
+    # path("<path:path>", views.serve_image, name="serve_image"),
 ]
