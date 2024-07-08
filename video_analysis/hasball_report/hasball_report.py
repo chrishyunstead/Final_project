@@ -76,7 +76,7 @@ class PossessionReport:
             print("dir for possession report 1 created!")
         if len(glob(save_path + f"/{match_id}*")) == 2:
             print("possession_report already exist!")
-            return glob(save_path + f"/{match_id}-possession-lmr*")
+            return glob(save_path + f"/{match_id}_possession_lmr*")
         else:
             print("making possession report 1...")
             play_data_team_a, play_data_team_b = self.create_possession_frame()
@@ -145,18 +145,18 @@ class PossessionReport:
                 ax.imshow(nuri_pitch, extent=[2.5, 802.5, 2.5, 402.5])
                 ax.axis("off")
                 plt.savefig(
-                    f"{save_path}/{match_id}-possession-lmr-{team_name}.png",
+                    f"{save_path}/{match_id}_possession_lmr_{team_name}.png",
                     dpi=300,
                     bbox_inches="tight",
                 )
             print("possession report 1 created!")
-            return glob(save_path + f"/{match_id}-possession-lmr*")
+            return glob(save_path + f"/{match_id}_possession_lmr*")
 
     # 구역별 점유율 시각화 (세로 기준)
     def visual_activate_zone(self, match_id: str, save_path: str):
-        if len(glob(f"{save_path}/{match_id}-possession-dma.png")) == 1:
+        if len(glob(f"{save_path}/{match_id}_possession_dma.png")) == 1:
             print("possession report 2 already exists!")
-            return glob(f"{save_path}/{match_id}-possession-dma.png")
+            return glob(f"{save_path}/{match_id}_possession_dma.png")
         print("no viz of possession report 2\nmaking viz of possession report 2...")
         nuri_pitch = self.base_pitch
         team_a_data, team_b_data = self.create_possession_frame()
@@ -230,7 +230,7 @@ class PossessionReport:
         ax.imshow(nuri_pitch, extent=[2.5, 802.5, 2.5, 402.5])
         ax.axis("off")
         plt.savefig(
-            f"{save_path}/{match_id}-possession-dma.png", dpi=300, bbox_inches="tight"
+            f"{save_path}/{match_id}_possession_dma.png", dpi=300, bbox_inches="tight"
         )
         print("viz of possession report created!")
-        return glob(f"{save_path}/{match_id}-possession-dma.png")
+        return glob(f"{save_path}/{match_id}_possession_dma.png")
