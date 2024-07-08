@@ -30,6 +30,7 @@ from .models import Team, Match, MatchResult, Teamboard, BoardComment
 from team.decorators import group_required
 
 # from .serializers import MessageSerializer
+from django.http import HttpResponse, Http404
 
 
 # My Team 눌렀을때 반응
@@ -581,6 +582,16 @@ def video_analysis(request, team_id):
             "viz_path_dict": viz_path_dict,
         },
     )
+
+
+### viz_path_dict 이미지 경로 전달
+def serve_image(request, path):
+    file_path = os.path.join(settings.BASE_DIR, "video_analysis", "viz", path)
+    if os.path.exists(file_path):
+        with open(file_path, "rb") as f:
+            return HttpResponse(f.read(), content_type="image/png")
+    else:
+        raise Http404("File not found")
 
 
 # 상대팀 순위 업데이트 함수
