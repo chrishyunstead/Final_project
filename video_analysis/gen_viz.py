@@ -16,7 +16,7 @@ def basic_gen(track_stub_path):
     )
 
     hasball_report = PossessionReport(
-        "df/heatmap/testMatch-heatmap-df.csv", base_pitch_path
+        "df/heatmap/testMatch_heatmap_df.csv", base_pitch_path
     )
     possession_lmr_path_list = hasball_report.visual_possession(
         match_id, "viz/possession"
@@ -53,7 +53,7 @@ if __name__ == "__main__":
 #     )
 #
 #     hasball_report = PossessionReport(
-#         "df/heatmap/testMatch-heatmap-df.csv",
+#         "df/heatmap/testMatch_heatmap_df.csv",
 #         base_pitch_path,
 #     )
 #     possession_lmr_path_list = hasball_report.visual_possession(
@@ -95,7 +95,7 @@ if __name__ == "__main__":
 #     )
 #
 #     hasball_report = PossessionReport(
-#         os.path.join(settings.MEDIA_ROOT, "df/heatmap/testMatch-heatmap-df.csv"),
+#         os.path.join(settings.MEDIA_ROOT, "df/heatmap/testMatch_heatmap_df.csv"),
 #         base_pitch_path,
 #     )
 #     possession_save_path = os.path.join(settings.MEDIA_ROOT, "viz/possession")

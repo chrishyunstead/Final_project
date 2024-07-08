@@ -22,7 +22,7 @@ def main(track_stub_path):
     passmap_path_list = passmap.passmap_plot("viz/passmap", match_id)
 
     hasball_report = PossessionReport(
-        "df/heatmap/testMatch-heatmap-df.csv", base_pitch_path
+        "df/heatmap/testMatch_heatmap_df.csv", base_pitch_path
     )
     possession_lmr_path_list = hasball_report.visual_possession(
         match_id, "viz/possession"

@@ -68,10 +68,10 @@ class PassMap:
             if len(glob(pass_df_path + f"/{match_id}*")) == 2:
                 print("pass df already exists!")
                 self.df_passmap_success = pd.read_csv(
-                    pass_df_path + f"/{match_id}-pass-success-df.csv"
+                    pass_df_path + f"/{match_id}_pass_success_df.csv"
                 )
                 self.df_passmap_fail = pd.read_csv(
-                    pass_df_path + f"/{match_id}-pass-fail-df.csv"
+                    pass_df_path + f"/{match_id}_pass_fail_df.csv"
                 )
         passmap_success = []
         passmap_fail = []
@@ -147,9 +147,9 @@ class PassMap:
             ]["coord_average_y"].item()
 
         self.df_passmap_success = pd.DataFrame(passmap_success)
-        self.df_passmap_success.to_csv(f"{pass_df_path}/{match_id}-pass-success-df.csv")
+        self.df_passmap_success.to_csv(f"{pass_df_path}/{match_id}_pass_success_df.csv")
         self.df_passmap_fail = pd.DataFrame(passmap_fail)
-        self.df_passmap_fail.to_csv(f"{pass_df_path}/{match_id}-pass-fail-df.csv")
+        self.df_passmap_fail.to_csv(f"{pass_df_path}/{match_id}_pass_fail_df.csv")
 
     def passmap_plot(self, passmap_viz_path: str, match_id: str):
         if not os.path.exists(passmap_viz_path):
@@ -240,9 +240,9 @@ class PassMap:
                     zorder=3,
                 )
             if team == "Team-A":
-                output_path = passmap_viz_path + f"/{match_id}-passmap-team_a.png"
+                output_path = passmap_viz_path + f"/{match_id}_passmap_team_a.png"
             else:
-                output_path = passmap_viz_path + f"/{match_id}-passmap-team_b.png"
+                output_path = passmap_viz_path + f"/{match_id}_passmap_team_b.png"
             plt.savefig(output_path, dpi=300, bbox_inches="tight")
             print("passmap viz created!")
         return glob(passmap_viz_path + f"{match_id}*")
