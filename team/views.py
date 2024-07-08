@@ -586,7 +586,8 @@ def video_analysis(request, team_id):
 
 ## viz_path_dict 이미지 경로 전달
 def serve_image(request, path):
-    file_path = os.path.join(settings.BASE_DIR, "video_analysis", "viz", path)
+    # file_path = os.path.join(settings.BASE_DIR, "video_analysis", "viz", path)
+    file_path = os.path.join(settings.BASE_DIR, path)
     if os.path.exists(file_path):
         with open(file_path, "rb") as f:
             return HttpResponse(f.read(), content_type="image/png")
