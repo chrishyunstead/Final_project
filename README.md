@@ -17,6 +17,8 @@
       <details>
         <summary>예시 화면</summary>
         <img src="FA_화면/회원가입.jpg" alt="회원가입">
+        <img src="FA_화면/아이디찾기.jpg" alt="아이디 찾기">
+        <img src="FA_화면/비밀번호찾기이메일.jpg" alt="비밀번호 찾기 이메일 인증">
       </details>
      
    2. 메인화면, 마이페이지
