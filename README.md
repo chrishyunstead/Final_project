@@ -1,11 +1,11 @@
 # DA34-final-Football_Agora_Web_Video
 
 ## Adios Team Final_Project (팀 프로젝트)
-
-### Django 프레임워크
+![image](static/images/banner2.png)
 
 ### 사용언어 및 라이브러리
 - 언어: Python, Javascript
+- 프레임워크: Django
 - 운영서버 라이브러리: [prod.txt](requirements/common.txt)
 - 개발서버 라이브러리: [dev.txt](requirements/dev.txt)
 
@@ -78,4 +78,17 @@
           <summary>예시 화면</summary>
           <img src="FA_화면/영상분석%20이미지.png" alt="영상분석">
       </details>
+    
+### 시연영상: [시연영상 링크](웹페이지_시연영상.mp4)
+
+#### 중점 사항
+- 화면설계서에 따른 템플릿 제작 (bootstrap, css, html)
+- Url주소값에 따른 페이지 제작, PK값 지정
+- 요구사항 정의서, 화면설계서에 따른 권한 지정
+- DB 모델링에 맞춰서 models.py 수정
+- 주석을 이용한 기능명세 작성
+
+#### 미흡 사항 및 추후 과제
+- 장고에서 지원하는 채널을 통해 실시간 팀 채팅 구현
+- 도커를 이용한 협업 및 모델 서빙
   
