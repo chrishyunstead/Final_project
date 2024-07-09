@@ -136,7 +136,7 @@ def chatbot(request):
 
         try:
             response = requests.post(
-                "http://43.200.89.250:8080/query", json={"query": message}
+                "http://43.200.89.250:8001/query", json={"query": message}
             )  # FastAPI 서버에 JSON 형태로 질문 전송
             response_data = response.json()  # JSON 응답 파싱
 
