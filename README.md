@@ -1,4 +1,4 @@
-# ⚽ DA34-final-Football_Agora_Web_Video
+# ⚽ DA34-final-Football_Agora
 
 ## 🎉 Adios Team Final_Project (팀 프로젝트)
 ![image](static/images/banner2.png)
@@ -41,11 +41,8 @@
         <summary>ERD</summary>
         <img src="FA_ERD(Light_Version).png" alt="ERD">
 </details>
-<br>
-<details>
-        <summary>요구사항 정의서</summary>
-        <img src="요구사항정의서_최종.xlsx" alt="요구사항 정의서">
-</details>
+
+[요구사항 정의서](요구사항정의서_최종.xlsx)
 
 [화면설계서 PPT](FA_화면설계서_최종.pptx)
 
@@ -133,7 +130,7 @@
 ## 8. 📂 산출물 
 - 🎬 시연영상: [시연영상 링크](웹페이지_시연영상.mp4)
 - 📄 팀 포트폴리오: [팀 포트폴리오](FA_최종_ver_2.0.pdf)
-- 
+
 ## 9. 🛠️ 트러블 슈팅:
 1. **Nginx로 웹에 배포할 때 static 파일들이 보이지 않는 현상**
    - [블로그 참조 링크](https://velog.io/@odh0112/Django-Static-file-Nginx%EB%A1%9C-%EC%B2%98%EB%A6%AC)
@@ -147,8 +144,9 @@
 
 
 3. **비디오 모델을 더 좋은 성능을 내기 위해 GPU가 있는 서버에 올려, FastApi로 서빙하려고 했으나, 비디오 모델 용량이 300MB 정도 되어 Django 프로젝트 폴더 내에 video_analysis 폴더에 내장시켰습니다. 하지만 이미지 파일을 불러오는 부분에서 에러가 계속 발생했습니다.**
-   - Django 프레임워크가 자동으로 이미지를 media라는 폴더에 저장시키는 줄 알았으나, 알고 보니 착각이었습니다. media에 저장되는 원리는 내가 직접 DB 필드에서 image 필드로 지정해줘야 저장이 되는 원리였습니다. 그래서 media로 경로를 설정하지 않고 저장되는 폴더의 경로를 지정했더니 해결되었습니다.
+   - Django 프레임워크가 자동으로 이미지를 `media`라는 폴더에 저장시키는 줄 알았으나, 알고 보니 착각이었습니다. `media`에 저장되는 원리는 내가 직접 DB 필드에서 image 필드로 지정해줘야 저장이 되는 원리였습니다. 그래서 `media`로 경로를 설정하지 않고 저장되는 폴더의 경로를 지정했더니 해결되었습니다.
 
+    
 ## 10. 🎯 중점 사항
 - 화면설계서에 따른 템플릿 제작 (bootstrap, css, html)
 - Url주소값에 따른 페이지 제작, PK값 지정
