@@ -35,9 +35,6 @@
 - **운영서버 라이브러리**: [Prod.txt](requirements/common.txt)
 - **개발서버 라이브러리**: [Dev.txt](requirements/dev.txt)
 
-## 5.
-> 우리만의 풋살 스토리를 직접 기록하고 공유할 수 있는 장을 마련해주는 서비스 <br><br> 남녀노소 구분없이 누구든지 풋살 문화에 쉽게 접근할 수 있게 해주는 서비스
-
 ## 5. 🌐 서버 아키텍처
 <details>
         <summary>서버 아키텍처</summary>
