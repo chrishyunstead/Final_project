@@ -3,10 +3,16 @@
 ## 🎉 Adios Team Final_Project (팀 프로젝트)
 ![image](static/images/banner2.png)
 
+## 🎯 기획 목표
+> - 자신만의 풋살 스토리를 직접 기록하며 공유할 수 있는 장을 마련해주는 서비스 <br>
+> - 남녀노소 구분없이 누구든지 풋살 문화에 쉽게 접근할 수 있도록 풋살 특화 생성형 AI 서비스 제공
+
+
 ## 1. 📅 제작 기간
-- 2024년 6월 1일 ~ 7월 8일
+- 2024년 5월 17일 ~ 7월 3일
 - 팀 프로젝트
 - 8명
+
 ## 2. 👥 R&R
 - Django Framework로 혼자 웹 페이지 개발, DB 모델링, 모델 서빙
 
@@ -22,14 +28,15 @@
   - HTML
   - CSS
   - JavaScript
-  
-
 
 ## 4. 🧰 사용언어 및 라이브러리
 - **언어**: Python, Javascript
 - **개발 툴**: Pycharm
 - **운영서버 라이브러리**: [Prod.txt](requirements/common.txt)
 - **개발서버 라이브러리**: [Dev.txt](requirements/dev.txt)
+
+## 5.
+> 우리만의 풋살 스토리를 직접 기록하고 공유할 수 있는 장을 마련해주는 서비스 <br><br> 남녀노소 구분없이 누구든지 풋살 문화에 쉽게 접근할 수 있게 해주는 서비스
 
 ## 5. 🌐 서버 아키텍처
 <details>
