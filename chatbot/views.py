@@ -124,15 +124,15 @@ from django.http import JsonResponse
 #     return render(request, "chatbot.html")  # GET 요청인 경우, 챗봇 폼을 렌더링합니다.
 
 
+# 웹에서 만든 FastApi request
 def chatbot(request):
     message = ""
     response_data = {}
+    # 채팅 내역들 남기게 하기
     chat_history = request.session.get("chat_history", [])
 
     if request.method == "POST":
-        message = request.POST.get(
-            "message"
-        )  # 사용자의 질문 받기.(질문형태 str일 경우)
+        message = request.POST.get("message")  # 사용자의 질문 받기(질문형태 str일 경우)
 
         try:
             response = requests.post(
@@ -140,7 +140,7 @@ def chatbot(request):
             )  # FastAPI 서버에 JSON 형태로 질문 전송
             response_data = response.json()  # JSON 응답 파싱
 
-            # 응답에서 "Answer:" 부분만 추출
+            # 챗봇 응답에서 "Answer:" 부분만 추출
             if "response" in response_data:
                 answer_start = response_data["response"].split("Answer:")
                 if len(answer_start) > 1:

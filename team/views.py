@@ -114,42 +114,6 @@ def myteam(request, team_id=None):
     return render(request, "team_dashboard.html", context)
 
 
-# My Team 화면
-# @login_required
-# def team_dashboard(request, team_id):
-#     team = get_object_or_404(Team, team_no=team_id)
-#     user = request.user
-#
-#     if user not in team.members.all():
-#         return render(
-#             request,
-#             "team_create_form.html",
-#             {"message": "팀에 소속되어 있지 않습니다."},
-#         )
-#
-#     # 팀의 경기 결과 및 순위 계산
-#     results = MatchResult.objects.filter(team=team)
-#     match_count = results.count()
-#     win_count = results.filter(result="W").count()
-#     draw_count = results.filter(result="D").count()
-#     lose_count = results.filter(result="L").count()
-#     goal_difference = sum(result.goal_difference for result in results)
-#     points = sum(result.points for result in results)
-#
-#     context = {
-#         "team": team,
-#         "members": team.members.all(),
-#         "match_count": match_count,
-#         "win_count": win_count,
-#         "draw_count": draw_count,
-#         "lose_count": lose_count,
-#         "goal_difference": goal_difference,
-#         "points": points,
-#     }
-#
-#     return render(request, "team_dashboard.html", context)
-
-
 # 팀 생성하기 화면
 # 로그인 보장
 class CreateTeamView(LoginRequiredMixin, CreateView):
@@ -385,7 +349,7 @@ def update_team_ranking(team):
     team.save()
 
 
-# 경기 리포트 자성 생성 페이지
+# 경기 리포트 작성 페이지
 # 로그인한 사용자만
 # 팀에 속한 사용자만
 @login_required
@@ -564,9 +528,8 @@ def video_analysis(request, team_id):
                 stub_path = tracking(left_video_path, right_video_path)
                 viz_path_dict = basic_gen(stub_path)
                 print(viz_path_dict)
-                # 저장된 이미지 파일 경로를 미디어 URL로 변환 x
-                # for key, value in viz_path_dict.items():
-                #     viz_path_dict[key] = os.path.join(settings.MEDIA_URL, value)
+                # 저장된 이미지 파일 경로를 미디어 URL로 변환 x ==> viz폴더에 있는 경로에서 이미지값 그대로 가져오기 위해서
+
         else:
             form = DateSelectForm(match_dates=match_dates)
     else:

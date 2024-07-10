@@ -6,5 +6,6 @@ from . import views
 app_name = "chatbot"
 
 urlpatterns = [
+    # 챗봇 url
     path("", views.chatbot, name="chatbot"),
 ]

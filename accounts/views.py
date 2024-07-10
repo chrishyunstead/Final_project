@@ -271,6 +271,7 @@ class EditProfileView(LoginRequiredMixin, UpdateView):
 edit_mypage = EditProfileView.as_view()
 
 
+# 비밀번호 변경
 @login_required
 def password_change(request):
     # 사용자가 폼을 제출하면 요청 메서드가 POST
@@ -279,8 +280,7 @@ def password_change(request):
         if form.is_valid():
             user = form.save()
 
-            # 세션에서 인증된 사용자의 비밀번호 해시를 업데이트합니다.
-            # 이렇게 하면 비밀번호를 변경한 후에도 사용자가 로그아웃되지 않습니다.
+            # 세션에서 인증된 사용자의 비밀번호 해시를 업데이트
             update_session_auth_hash(request, user)
             messages.success(request, "비밀번호가 성공적으로 변경되었습니다.")
             return render(request, "accounts/password_change_done.html")
@@ -292,13 +292,16 @@ def password_change(request):
     return render(request, "accounts/password_change.html", {"form": form})
 
 
+# 비밀번호 변경 완료
 @login_required
 def password_change_done(request):
     return render(request, "accounts/password_change_done.html")
 
 
+# 비밀번호 초기화(DjangoPasswordResetView) 이용
 class PasswordResetView(DjangoPasswordResetView):
     template_name = "accounts/password_reset_form.html"
+    # 이메일에 전송될 템플릿 설정
     email_template_name = "accounts/password_reset_email.html"
     success_url = reverse_lazy("accounts:main")
     form_class = PasswordResetForm
@@ -315,15 +318,17 @@ class PasswordResetView(DjangoPasswordResetView):
                 "domain": self.request.get_host(),
                 "site_name": "Your Site Name",
                 "uid": uid,
-                "user": user,  # Add user to context
+                "user": user,
                 "token": token,
                 "protocol": "https" if self.request.is_secure() else "http",
             }
-            subject = "Password Reset on Your Site Name"
+            # 이메일에 들어갈 제목 이름
+            subject = "Password Reset"
             email_template_name = self.email_template_name
             email_content = loader.render_to_string(email_template_name, context)
             send_mail(subject, email_content, settings.DEFAULT_FROM_EMAIL, [user.email])
 
+        # 이메일 내용
         messages.success(
             self.request,
             (
@@ -338,6 +343,7 @@ class PasswordResetView(DjangoPasswordResetView):
 password_reset = PasswordResetView.as_view()
 
 
+# 비밀번호 초기화 확인 페이지
 class PasswordResetConfirmView(DjangoPasswordResetConfirmView):
     template_name = "accounts/password_reset_confirm.html"
     post_reset_login = True
@@ -352,6 +358,7 @@ class PasswordResetConfirmView(DjangoPasswordResetConfirmView):
 password_reset_confirm = PasswordResetConfirmView.as_view()
 
 
+# 비밀번호 초기화 창에서 메일 입력했을떄 나오는 메시지
 class PasswordResetDoneView(DjangoPasswordResetDoneView):
     template_name = "accounts/password_reset_done.html"
 
@@ -359,10 +366,12 @@ class PasswordResetDoneView(DjangoPasswordResetDoneView):
 password_reset_done = PasswordResetDoneView.as_view()
 
 
+# 아이디 찾기
 def find_id(request):
     if request.method == "POST":
         form = UsernameRecoveryForm(request.POST)
         if form.is_valid():
+            # username, email필드를 받아서 아이디 찾음
             username = form.cleaned_data["username"]
             email = form.cleaned_data["email"]
             try:
