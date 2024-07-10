@@ -27,6 +27,7 @@
 
 ## 4. 🧰 사용언어 및 라이브러리
 - **언어**: Python, Javascript
+- **개발 툴**: Pycharm
 - **운영서버 라이브러리**: [Prod.txt](requirements/common.txt)
 - **개발서버 라이브러리**: [Dev.txt](requirements/dev.txt)
 
